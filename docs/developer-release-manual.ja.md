@@ -84,7 +84,7 @@ C:\Users\o_leg\source\repos\BlinkObserverTool\
 │           ├── Generate-InstallerConfig.ps1 # settings.json から MSBuild プロパティを生成
 │           └── Prepare-PerUserHarvest.ps1   # 収集ファイル群に HKCU レジストリキーを付与
 ├── reference\
-│   └── verified-profiles\                  # 配布対象の検証済みプロファイル実体
+│   └── verified-profiles\                  # ローカル検証用の既定プロファイル実体 (Git 追跡対象外)
 ├── BlinkObserverTool\                       # メイン WPF (Windows Presentation Foundation) アプリケーションプロジェクト
 │   ├── BlinkObserverTool.csproj
 │   └── DefaultProfiles\
@@ -107,7 +107,7 @@ C:\Users\o_leg\source\repos\BlinkObserverTool\
 │           ├── Generate-InstallerConfig.ps1 # settings.json から MSBuild プロパティを生成
 │           └── Prepare-PerUserHarvest.ps1   # 収集ファイル群に HKCU レジストリキーを付与
 ├── reference\
-│   └── verified-profiles\                  # 配布対象の検証済みプロファイル実体
+│   └── verified-profiles\                  # ローカル検証用の既定プロファイル実体 (Git 追跡対象外)
 ├── BlinkObserverTool\                       # メイン WPF アプリケーションプロジェクト
 │   ├── BlinkObserverTool.csproj
 │   └── DefaultProfiles\
@@ -446,7 +446,8 @@ $checksumContent = "$hash  $fileName`n"
 新しいプロファイルを同梱する場合、または既存の同梱プロファイルを更新する場合は、以下の手順に従います。
 
 1. **実体ファイルの配置:**  
-   `reference\verified-profiles\<プロファイル名>\` 配下に必要なファイル (`profile.json`、テンプレート画像など) を配置します。
+   Git では管理しないローカル作業用ディレクトリ `reference\verified-profiles\<プロファイル名>\` 配下に、
+   必要なファイル (`profile.json`、テンプレート画像など) を配置します。
 2. **SHA-256 ハッシュ値の算出:**  
    追加・変更した各ファイルの SHA-256 ハッシュ値を計算します (大文字英数字 64 桁)。
    ```powershell
