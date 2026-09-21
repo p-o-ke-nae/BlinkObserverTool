@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <Fragment>
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="$(var.Manufacturer)">
+        <Directory Id="ApplicationShortcutFolder" Name="$(var.ProductName)">
+          <Component Id="StartMenuShortcutComponent" Guid="*">
+            <?if $(var.AppIconFilePath) != "" ?>
+            <Shortcut Id="StartMenuShortcut"
+                      Name="$(var.ProductName)"
+                      Description="$(var.ProductName)"
+                      Target="[INSTALLFOLDER]$(var.MainExecutableName)"
+                      WorkingDirectory="INSTALLFOLDER"
+                      Icon="AppIcon"
+                      IconIndex="0" />
+            <?else?>
+            <Shortcut Id="StartMenuShortcut"
+                      Name="$(var.ProductName)"
+                      Description="$(var.ProductName)"
+                      Target="[INSTALLFOLDER]$(var.MainExecutableName)"
+                      WorkingDirectory="INSTALLFOLDER" />
+            <?endif?>
+            <RemoveFolder Id="RemoveApplicationShortcutFolder" On="uninstall" />
+            <RemoveFolder Id="RemoveApplicationProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall" />
+            <RegistryValue Root="HKCU"
+                           Key="Software\$(var.Manufacturer)\$(var.ProductName)"
+                           Name="StartMenuShortcutInstalled"
+                           Type="integer"
+                           Value="1"
+                           KeyPath="yes" />
+          </Component>
+        </Directory>
+      </Directory>
+    </StandardDirectory>
+  </Fragment>
+
+  <?if $(var.AppIconFilePath) != "" ?>
+  <Fragment>
+    <Icon Id="AppIcon" SourceFile="$(var.AppIconFilePath)" />
+  </Fragment>
+  <?endif?>
+
+  <Fragment>
+    <StandardDirectory Id="DesktopFolder">
+      <Component Id="DesktopShortcutComponent" Guid="*">
+        <?if $(var.AppIconFilePath) != "" ?>
+        <Shortcut Id="DesktopShortcut"
+                  Name="$(var.ProductName)"
+                  Description="$(var.ProductName)"
+                  Target="[INSTALLFOLDER]$(var.MainExecutableName)"
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="AppIcon"
+                  IconIndex="0" />
+        <?else?>
+        <Shortcut Id="DesktopShortcut"
+                  Name="$(var.ProductName)"
+                  Description="$(var.ProductName)"
+                  Target="[INSTALLFOLDER]$(var.MainExecutableName)"
+                  WorkingDirectory="INSTALLFOLDER" />
+        <?endif?>
+        <RegistryValue Root="HKCU"
+                       Key="Software\$(var.Manufacturer)\$(var.ProductName)"
+                       Name="DesktopShortcutInstalled"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </StandardDirectory>
+  </Fragment>
+
+  <Package
+    Name="$(var.ProductName)"
+    Manufacturer="$(var.Manufacturer)"
+    Version="$(var.ProductVersion)"
+    UpgradeCode="$(var.UpgradeCode)"
+    Scope="perUser"
+    InstallerVersion="500"
+    Compressed="yes">
+
+    <MajorUpgrade
+      AllowDowngrades="no"
+      DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+    <MediaTemplate EmbedCab="yes" />
+    <?if $(var.AppIconFilePath) != "" ?>
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+    <?endif?>
+
+    <StandardDirectory Id="LocalAppDataFolder">
+      <Directory Id="PROGRAMSROOT" Name="Programs">
+        <Component Id="ProgramsRootCleanupComponent" Guid="*">
+          <RemoveFolder Id="RemoveProgramsRoot" On="uninstall" />
+          <RegistryValue Root="HKCU"
+                         Key="Software\$(var.Manufacturer)\$(var.ProductName)"
+                         Name="ProgramsRootInstalled"
+                         Type="integer"
+                         Value="1"
+                         KeyPath="yes" />
+        </Component>
+        <Directory Id="COMPANYROOT" Name="$(var.CommonCompanyDirName)">
+          <Component Id="CompanyRootCleanupComponent" Guid="*">
+            <RemoveFolder Id="RemoveCompanyRoot" On="uninstall" />
+            <RegistryValue Root="HKCU"
+                           Key="Software\$(var.Manufacturer)\$(var.ProductName)"
+                           Name="CompanyRootInstalled"
+                           Type="integer"
+                           Value="1"
+                           KeyPath="yes" />
+          </Component>
+          <Directory Id="COMMONROOT" Name="$(var.CommonAppsRootDirName)">
+            <Component Id="CommonRootCleanupComponent" Guid="*">
+              <RemoveFolder Id="RemoveCommonRoot" On="uninstall" />
+              <RegistryValue Root="HKCU"
+                             Key="Software\$(var.Manufacturer)\$(var.ProductName)"
+                             Name="CommonRootInstalled"
+                             Type="integer"
+                             Value="1"
+                             KeyPath="yes" />
+            </Component>
+            <Directory Id="INSTALLFOLDER" Name="$(var.AppDirectoryName)" />
+          </Directory>
+        </Directory>
+      </Directory>
+    </StandardDirectory>
+
+    <Feature Id="MainFeature" Title="$(var.ProductName)" Level="1">
+      <ComponentGroupRef Id="AppFiles" />
+      <ComponentRef Id="StartMenuShortcutComponent" />
+      <ComponentRef Id="ProgramsRootCleanupComponent" />
+      <ComponentRef Id="CompanyRootCleanupComponent" />
+      <ComponentRef Id="CommonRootCleanupComponent" />
+    </Feature>
+
+    <Feature Id="DesktopShortcutFeature"
+             Title="デスクトップショートカット"
+             Description="デスクトップにショートカットを作成します。"
+             Level="1"
+             AllowAbsent="yes">
+      <ComponentRef Id="DesktopShortcutComponent" />
+    </Feature>
+
+    <ui:WixUI Id="WixUI_FeatureTree" />
+  </Package>
+</Wix>

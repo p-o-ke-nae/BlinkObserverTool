@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  PACKAGE_OWNER: ${{ vars.GENERIC_RECOGNITION_PACKAGE_OWNER || github.repository_owner }}
+
+jobs:
+  test-and-build:
+    runs-on: windows-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Configure GitHub Packages
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $configPath = (Resolve-Path .\NuGet.Config).Path
+          [xml]$config = Get-Content -LiteralPath $configPath -Raw
+          $sourcesToRemove = @(
+            $config.configuration.packageSources.add |
+              Where-Object {
+                $_.key -in @("LocalPackages", "GitHubPackages", "github") -or
+                $_.value -like "https://nuget.pkg.github.com/*"
+              }
+          )
+          foreach ($source in $sourcesToRemove) {
+            [void]$source.ParentNode.RemoveChild($source)
+          }
+          $config.Save($configPath)
+
+          dotnet nuget add source "https://nuget.pkg.github.com/$env:PACKAGE_OWNER/index.json" `
+            --name github `
+            --username "$env:GITHUB_ACTOR" `
+            --password "$env:GITHUB_TOKEN" `
+            --store-password-in-clear-text `
+            --valid-authentication-types basic `
+            --configfile .\NuGet.Config
+
+      - name: Restore
+        shell: pwsh
+        run: dotnet restore .\BlinkObserverTool.slnx --configfile .\NuGet.Config
+
+      - name: Test version resolver
+        shell: pwsh
+        run: .\build\tests\Resolve-GitVersion.Tests.ps1
+
+      - name: Test profile synchronization
+        shell: pwsh
+        run: dotnet test .\BlinkObserverTool.ProfileSync.Tests\BlinkObserverTool.ProfileSync.Tests.csproj -c Debug --no-restore
+
+      - name: Test blink recognition
+        shell: pwsh
+        run: dotnet test .\BlinkObserverTool.BlinkRecognition.Tests\BlinkObserverTool.BlinkRecognition.Tests.csproj -c Debug --no-restore
+
+      - name: Build Debug MSI
+        shell: pwsh
+        run: dotnet build .\installer\BlinkObserverTool.Installer\BlinkObserverTool.Installer.wixproj -c Debug --no-restore
+
+      - name: Remove package credentials
+        if: always()
+        shell: pwsh
+        run: |
+          dotnet nuget remove source github --configfile .\NuGet.Config
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "The transient github source was not present."
+          }
+
+      - name: Upload Debug MSI
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: BlinkObserverTool-debug-msi
+          path: installer/BlinkObserverTool.Installer/bin/Debug/BlinkObserverTool.Installer.msi
+          if-no-files-found: error
+          retention-days: 7

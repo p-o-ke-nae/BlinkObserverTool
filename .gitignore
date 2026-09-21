@@ -1,0 +1,8 @@
+# Visual Studio and .NET build output
+.vs/
+**/bin/
+**/obj/
+
+# Installer build output
+installer/BlinkObserverTool.Installer/Generated/
+installer/BlinkObserverTool.Installer/sample-app/

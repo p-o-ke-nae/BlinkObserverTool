@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pokenae.example/schemas/blink-observer-tool-installer-settings.schema.json",
+  "title": "BlinkObserverTool installer settings",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ProductName",
+    "Manufacturer",
+    "Version",
+    "UpgradeCode",
+    "AppDirectoryName",
+    "CommonCompanyDirName",
+    "CommonAppsRootDirName",
+    "MainExecutableName",
+    "IconFilePath",
+    "AppSourceDir",
+    "ReferencedAppProjectPath",
+    "PublishRuntimeIdentifier",
+    "PublishSelfContained"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "ProductName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "Manufacturer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "Version": {
+      "oneOf": [
+        {
+          "enum": ["auto", "git"]
+        },
+        {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        }
+      ]
+    },
+    "UpgradeCode": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "AppDirectoryName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "CommonCompanyDirName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "CommonAppsRootDirName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "MainExecutableName": {
+      "type": "string",
+      "pattern": "^[^\\\\/:*?\"<>|]+\\.exe$"
+    },
+    "IconFilePath": {
+      "type": "string",
+      "pattern": "^(|.*\\.[iI][cC][oO])$"
+    },
+    "AppSourceDir": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ReferencedAppProjectPath": {
+      "type": "string"
+    },
+    "PublishConfiguration": {
+      "enum": ["Debug", "Release"]
+    },
+    "PublishRuntimeIdentifier": {
+      "type": "string",
+      "minLength": 1
+    },
+    "PublishSelfContained": {
+      "type": "boolean"
+    }
+  }
+}

@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="GenericRecognition.Workbench.Abstractions" Version="0.1.7" />
+    <PackageReference Include="GenericRecognition.Workbench.Infrastructure" Version="0.1.7" />
+    <PackageReference Include="GenericRecognition.Workbench.Wpf" Version="0.1.7" />
+    <PackageReference Include="InputInterceptor" Version="2.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BlinkObserverTool.BlinkRecognition\BlinkObserverTool.BlinkRecognition.csproj" />
+    <ProjectReference Include="..\BlinkObserverTool.ProfileSync\BlinkObserverTool.ProfileSync.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="DefaultProfiles\manifest.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="..\reference\verified-profiles\**\*"
+             Link="DefaultProfiles\Profiles\%(RecursiveDir)%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest"
+             CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <PlatformTarget>x64</PlatformTarget>
+    <GeneratedBuildVersionFile>$(MSBuildProjectDirectory)\obj\$(Configuration)\$(TargetFramework)\git-version.props</GeneratedBuildVersionFile>
+  </PropertyGroup>
+
+  <Target Name="SetBuildVersion" BeforeTargets="GetAssemblyVersion">
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\..\build\Resolve-GitVersion.ps1&quot; -RepositoryPath &quot;$(MSBuildProjectDirectory)&quot; -Configuration &quot;$(Configuration)&quot; -OutputFormat Props -OutputPath &quot;$(GeneratedBuildVersionFile)&quot;" />
+    <XmlPeek XmlInputPath="$(GeneratedBuildVersionFile)" Query="/Project/PropertyGroup/ResolvedPackageVersion/text()">
+      <Output TaskParameter="Result" PropertyName="Version" />
+    </XmlPeek>
+    <XmlPeek XmlInputPath="$(GeneratedBuildVersionFile)" Query="/Project/PropertyGroup/ResolvedAssemblyVersion/text()">
+      <Output TaskParameter="Result" PropertyName="AssemblyVersion" />
+    </XmlPeek>
+    <XmlPeek XmlInputPath="$(GeneratedBuildVersionFile)" Query="/Project/PropertyGroup/ResolvedFileVersion/text()">
+      <Output TaskParameter="Result" PropertyName="FileVersion" />
+    </XmlPeek>
+    <XmlPeek XmlInputPath="$(GeneratedBuildVersionFile)" Query="/Project/PropertyGroup/ResolvedInformationalVersion/text()">
+      <Output TaskParameter="Result" PropertyName="InformationalVersion" />
+    </XmlPeek>
+    <PropertyGroup>
+      <PackageVersion>$(Version)</PackageVersion>
+    </PropertyGroup>
+  </Target>
+
+</Project>

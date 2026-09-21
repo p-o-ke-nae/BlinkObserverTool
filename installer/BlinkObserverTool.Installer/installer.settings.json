@@ -1,0 +1,16 @@
+{
+  "$schema": "./installer.settings.schema.json",
+  "ProductName": "BlinkObserverTool",
+  "Manufacturer": "pokenae",
+  "Version": "git",
+  "UpgradeCode": "813D1E2D-7D7A-4984-A062-81B06B5EBC26",
+  "AppDirectoryName": "BlinkObserverTool",
+  "CommonCompanyDirName": "pokenae",
+  "CommonAppsRootDirName": "BlinkTools",
+  "MainExecutableName": "BlinkObserverTool.exe",
+  "IconFilePath": "",
+  "AppSourceDir": ".\\obj\\publish",
+  "ReferencedAppProjectPath": "..\\..\\BlinkObserverTool\\BlinkObserverTool.csproj",
+  "PublishRuntimeIdentifier": "win-x64",
+  "PublishSelfContained": true
+}

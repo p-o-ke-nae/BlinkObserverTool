@@ -1,0 +1,143 @@
+<Project Sdk="WixToolset.Sdk/4.0.5">
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <OutputName>BlinkObserverTool.Installer</OutputName>
+    <InstallerPlatform>x64</InstallerPlatform>
+    <Cultures>ja-jp</Cultures>
+    <Configurations>Debug;Release</Configurations>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <SuppressIces>ICE91</SuppressIces>
+    <GeneratedInstallerConfigDir>$(MSBuildProjectDirectory)\obj\$(Configuration)\generated</GeneratedInstallerConfigDir>
+    <GeneratedInstallerConfigPath>$(GeneratedInstallerConfigDir)\InstallerConfig.props</GeneratedInstallerConfigPath>
+    <PowerShellExe Condition="'$(PowerShellExe)' == ''">$(SystemRoot)\System32\WindowsPowerShell\v1.0\powershell.exe</PowerShellExe>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="4.0.5" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="4.0.5" />
+    <PackageReference Include="WixToolset.Heat" Version="4.0.5" />
+  </ItemGroup>
+
+  <Target Name="GenerateInstallerConfig">
+    <Error Condition="!Exists('$(PowerShellExe)')" Text="Windows PowerShell was not found: $(PowerShellExe)" />
+    <MakeDir Directories="$(GeneratedInstallerConfigDir)" />
+    <Exec
+      Command="&quot;$(PowerShellExe)&quot; -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\scripts\Generate-InstallerConfig.ps1&quot; -SettingsPath &quot;$(MSBuildProjectDirectory)\installer.settings.json&quot; -OutputDir &quot;$(GeneratedInstallerConfigDir)&quot; -Configuration &quot;$(Configuration)&quot;"
+      WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <Error Condition="!Exists('$(GeneratedInstallerConfigPath)')" Text="Installer configuration was not generated: $(GeneratedInstallerConfigPath)" />
+  </Target>
+
+  <Target Name="LoadInstallerConfig" DependsOnTargets="GenerateInstallerConfig">
+    <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerProductName/text()">
+      <Output TaskParameter="Result" PropertyName="InstallerProductName" />
+    </XmlPeek>
+    <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerManufacturer/text()">
+      <Output TaskParameter="Result" PropertyName="InstallerManufacturer" />
+    </XmlPeek>
+    <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerVersion/text()">
+      <Output TaskParameter="Result" PropertyName="InstallerVersion" />
+    </XmlPeek>
+    <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerUpgradeCode/text()">
+      <Output TaskParameter="Result" PropertyName="InstallerUpgradeCode" />
+    </XmlPeek>
+    <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerAppDirectoryName/text()">
+      <Output TaskParameter="Result" PropertyName="InstallerAppDirectoryName" />
+    </XmlPeek>
+    <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerCommonCompanyDirName/text()">
+      <Output TaskParameter="Result" PropertyName="InstallerCommonCompanyDirName" />
+    </XmlPeek>
+    <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerCommonAppsRootDirName/text()">
+      <Output TaskParameter="Result" PropertyName="InstallerCommonAppsRootDirName" />
+    </XmlPeek>
+    <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerMainExecutableName/text()">
+      <Output TaskParameter="Result" PropertyName="InstallerMainExecutableName" />
+    </XmlPeek>
+    <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerIconFilePath/text()">
+      <Output TaskParameter="Result" PropertyName="InstallerIconFilePath" />
+    </XmlPeek>
+    <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerAppSourceDir/text()">
+      <Output TaskParameter="Result" PropertyName="InstallerAppSourceDir" />
+    </XmlPeek>
+    <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerReferencedAppProjectPath/text()">
+      <Output TaskParameter="Result" PropertyName="InstallerReferencedAppProjectPath" />
+    </XmlPeek>
+    <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerPublishConfiguration/text()">
+      <Output TaskParameter="Result" PropertyName="InstallerPublishConfiguration" />
+    </XmlPeek>
+    <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerPublishRuntimeIdentifier/text()">
+      <Output TaskParameter="Result" PropertyName="InstallerPublishRuntimeIdentifier" />
+    </XmlPeek>
+    <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerPublishSelfContained/text()">
+      <Output TaskParameter="Result" PropertyName="InstallerPublishSelfContained" />
+    </XmlPeek>
+
+    <PropertyGroup>
+      <InstallerPublishConfiguration Condition="'$(InstallerPublishConfiguration)' == ''">$(Configuration)</InstallerPublishConfiguration>
+      <DefineConstants>
+        $(DefineConstants);
+        ProductName=$(InstallerProductName);
+        Manufacturer=$(InstallerManufacturer);
+        ProductVersion=$(InstallerVersion);
+        UpgradeCode=$(InstallerUpgradeCode);
+        AppDirectoryName=$(InstallerAppDirectoryName);
+        CommonCompanyDirName=$(InstallerCommonCompanyDirName);
+        CommonAppsRootDirName=$(InstallerCommonAppsRootDirName);
+        MainExecutableName=$(InstallerMainExecutableName);
+        AppIconFilePath=$(InstallerIconFilePath);
+        SourceDir=$(InstallerAppSourceDir)
+      </DefineConstants>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="ValidateInstallerConfig" DependsOnTargets="LoadInstallerConfig">
+    <Error Condition="'$(InstallerProductName)' == ''" Text="InstallerProductName is required." />
+    <Error Condition="'$(InstallerVersion)' == ''" Text="InstallerVersion is required." />
+    <Error Condition="'$(InstallerUpgradeCode)' == ''" Text="InstallerUpgradeCode is required." />
+    <Error Condition="'$(InstallerMainExecutableName)' == ''" Text="InstallerMainExecutableName is required." />
+    <Error Condition="'$(InstallerAppSourceDir)' == ''" Text="InstallerAppSourceDir is required." />
+  </Target>
+
+  <Target Name="PublishReferencedApp" DependsOnTargets="ValidateInstallerConfig">
+    <PropertyGroup>
+      <InstallerPublishRuntimeIdentifierArg Condition="'$(InstallerPublishRuntimeIdentifier)' != ''"> -r &quot;$(InstallerPublishRuntimeIdentifier)&quot;</InstallerPublishRuntimeIdentifierArg>
+      <InstallerPublishSelfContainedArg Condition="'$(InstallerPublishSelfContained)' != ''"> --self-contained $(InstallerPublishSelfContained)</InstallerPublishSelfContainedArg>
+    </PropertyGroup>
+
+    <RemoveDir Directories="$(InstallerAppSourceDir)" Condition="'$(InstallerReferencedAppProjectPath)' != '' and Exists('$(InstallerAppSourceDir)')" />
+    <MakeDir Directories="$(InstallerAppSourceDir)" Condition="'$(InstallerReferencedAppProjectPath)' != ''" />
+    <Exec
+      Command="dotnet publish &quot;$(InstallerReferencedAppProjectPath)&quot; --nologo -c &quot;$(InstallerPublishConfiguration)&quot;$(InstallerPublishRuntimeIdentifierArg)$(InstallerPublishSelfContainedArg) -p:ContinuousIntegrationBuild=true -p:Deterministic=true -o &quot;$(InstallerAppSourceDir)&quot;"
+      WorkingDirectory="$(MSBuildProjectDirectory)"
+      Condition="'$(InstallerReferencedAppProjectPath)' != ''" />
+
+    <Error Condition="!Exists('$(InstallerAppSourceDir)')" Text="InstallerAppSourceDir was not found: $(InstallerAppSourceDir)" />
+    <Error Condition="!Exists('$(InstallerAppSourceDir)\$(InstallerMainExecutableName)')" Text="MainExecutableName was not found under InstallerAppSourceDir: $(InstallerMainExecutableName)" />
+  </Target>
+
+  <Target Name="ConfigureHarvestDirectory" DependsOnTargets="PublishReferencedApp">
+    <ItemGroup>
+      <HarvestDirectory Include="$(InstallerAppSourceDir)">
+        <ComponentGroupName>AppFiles</ComponentGroupName>
+        <DirectoryRefId>INSTALLFOLDER</DirectoryRefId>
+        <SuppressRootDirectory>true</SuppressRootDirectory>
+        <SuppressCom>true</SuppressCom>
+        <SuppressRegistry>true</SuppressRegistry>
+        <KeepEmptyDirectories>false</KeepEmptyDirectories>
+        <PreprocessorVariable>var.SourceDir</PreprocessorVariable>
+      </HarvestDirectory>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="PreparePerUserHarvest" AfterTargets="Harvest" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <HarvestedAppFilesPath>$(MSBuildProjectDirectory)\obj\$(Configuration)\_AppFiles_dir.wxs</HarvestedAppFilesPath>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(HarvestedAppFilesPath)')" Text="Harvested app authoring was not found: $(HarvestedAppFilesPath)" />
+    <Exec
+      Command="&quot;$(PowerShellExe)&quot; -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\scripts\Prepare-PerUserHarvest.ps1&quot; -HarvestPath &quot;$(HarvestedAppFilesPath)&quot;"
+      WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
+
+  <Target Name="PrepareInstallerBuild" DependsOnTargets="ConfigureHarvestDirectory" BeforeTargets="BeforeBuild" />
+</Project>

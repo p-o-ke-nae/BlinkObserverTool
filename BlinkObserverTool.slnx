@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/installer/">
+    <Project Path="installer/BlinkObserverTool.Installer/BlinkObserverTool.Installer.wixproj" Type="b7dd6f7e-def8-4e67-b5b7-07ef123db6f0" />
+  </Folder>
+  <Project Path="BlinkObserverTool.BlinkRecognition/BlinkObserverTool.BlinkRecognition.csproj" />
+  <Project Path="BlinkObserverTool.BlinkRecognition.Tests/BlinkObserverTool.BlinkRecognition.Tests.csproj" />
+  <Project Path="BlinkObserverTool.ProfileSync/BlinkObserverTool.ProfileSync.csproj" />
+  <Project Path="BlinkObserverTool.ProfileSync.Tests/BlinkObserverTool.ProfileSync.Tests.csproj" />
+  <Project Path="BlinkObserverTool/BlinkObserverTool.csproj" />
+</Solution>

@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "version": "2026.09.21.1",
+  "profiles": [
+    {
+      "id": "dark-2026-09-21-08-52-45-blink-feature",
+      "relativePath": "Profiles/暗所_2026-09-21_08-52-45_瞬き特徴",
+      "files": [
+        {
+          "relativePath": "profile.json",
+          "sha256": "E52B66A7391405B13EFCA513F00C9BF159FCD1E1376A06F6742C7A7B12D4BC53"
+        }
+      ]
+    },
+    {
+      "id": "dark-2026-09-21-08-59-52-template",
+      "relativePath": "Profiles/暗所_2026-09-21_08-59-52_テンプレート",
+      "files": [
+        {
+          "relativePath": "profile.json",
+          "sha256": "C2FA146F97CF279AB46F146BEC97A70147BB4573F45FD2086E3E1ABD2F49577F"
+        },
+        {
+          "relativePath": "images/recognition/template.png",
+          "sha256": "A3A64620AC6D5560046127938200FABC000F811D9CC1C829200EABBA9F0A8281"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+﻿<Project>
+  <PropertyGroup>
+    <ResolvedPackageVersion>0.0.0-local</ResolvedPackageVersion>
+    <ResolvedAssemblyVersion>0.0.0.0</ResolvedAssemblyVersion>
+    <ResolvedFileVersion>0.0.0.0</ResolvedFileVersion>
+    <ResolvedInformationalVersion>0.0.0-local</ResolvedInformationalVersion>
+    <ResolvedMsiVersion>0.0.0</ResolvedMsiVersion>
+    <ResolvedVersionSource>local</ResolvedVersionSource>
+  </PropertyGroup>
+</Project>
