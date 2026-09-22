@@ -14,16 +14,70 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <StackPanel>
-            <TextBlock FontSize="16" FontWeight="SemiBold" Text="観測する目をドラッグして囲んでください" />
+            <TextBlock FontSize="16" FontWeight="SemiBold" Text="固定学習モデル セットアップ" />
             <TextBlock Margin="0,4,0,8"
                        Foreground="#555555"
-                       Text="プレビューがない場合は取得ボタンを押します。選択後は開眼状態を自動学習するため、観測開始直後は目を開けたままにしてください。"
+                       Text="1. プレビュー開始・ROI指定 → 瞬き後に履歴を巻き戻す → 2. 開眼採取 → 3. 閉眼採取 → 4. 品質検証 → 5. モデル反映 の順に進めます。"
                        TextWrapping="Wrap" />
-            <Button Width="150"
-                    HorizontalAlignment="Left"
-                    Padding="10,6"
-                    Click="CapturePreview_Click"
-                    Content="最新プレビューを取得" />
+            <WrapPanel>
+                <Button Width="150"
+                        Margin="0,0,8,0"
+                        Padding="10,6"
+                        Click="CapturePreview_Click"
+                        Content="1. プレビュー開始" />
+                <Button x:Name="CaptureOpenButton"
+                        Width="130"
+                        Margin="0,0,8,0"
+                        Padding="10,6"
+                        IsEnabled="False"
+                        Click="CaptureOpen_Click"
+                        Content="2. 開眼を採取" />
+                <Button x:Name="CaptureClosedButton"
+                        Width="130"
+                        Margin="0,0,8,0"
+                        Padding="10,6"
+                        IsEnabled="False"
+                        Click="CaptureClosed_Click"
+                        Content="3. 閉眼を採取" />
+                <Button x:Name="ValidateButton"
+                        Width="130"
+                        Margin="0,0,8,0"
+                        Padding="10,6"
+                        IsEnabled="False"
+                        Click="Validate_Click"
+                        Content="4. 品質を検証" />
+                <Button x:Name="ApplyModelButton"
+                        Width="130"
+                        Padding="10,6"
+                        IsEnabled="False"
+                        Click="ApplyModel_Click"
+                        Content="5. モデルを反映" />
+            </WrapPanel>
+            <Grid Margin="0,8,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0"
+                        Width="44"
+                        Padding="8,3"
+                        Command="{Binding PreviousHistoryFrameCommand}"
+                        Content="&lt;" />
+                <Slider Grid.Column="1"
+                        Margin="8,0"
+                        Minimum="0"
+                        Maximum="{Binding FrameHistoryMaximum}"
+                        Value="{Binding SelectedHistoryIndex, UpdateSourceTrigger=PropertyChanged}" />
+                <Button Grid.Column="2"
+                        Width="44"
+                        Padding="8,3"
+                        Command="{Binding NextHistoryFrameCommand}"
+                        Content="&gt;" />
+            </Grid>
+            <TextBlock Margin="0,4,0,0"
+                       HorizontalAlignment="Center"
+                       Text="{Binding SelectedHistoryLabel}" />
         </StackPanel>
         <Border Grid.Row="1" Margin="0,10" BorderBrush="#44000000" BorderThickness="1" Background="#11000000">
             <Grid x:Name="PreviewSurface"
@@ -45,7 +99,7 @@
                    Grid.Row="2"
                    FontWeight="SemiBold"
                    Foreground="#B35A00"
-                   Text="プレビューを取得して目を選択してください。"
+                   Text="プレビューを開始して、観測する目をドラッグ選択してください。"
                    TextWrapping="Wrap" />
     </Grid>
 </Window>

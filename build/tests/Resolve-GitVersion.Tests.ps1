@@ -1,7 +1,7 @@
 $ErrorActionPreference = "Stop"
 
 $resolverPath = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "..\Resolve-GitVersion.ps1"))
-$testRoot = Join-Path $PSScriptRoot ".test-runs"
+$testRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("BlinkObserverTool-ResolveGitVersionTests-" + [Guid]::NewGuid().ToString("N"))
 $script:passed = 0
 $script:failed = 0
 

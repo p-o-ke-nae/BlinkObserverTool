@@ -44,7 +44,7 @@ BlinkObserverTool は、WiX Toolset v4 ベースのソフトウェア開発キ�
 | バージョン管理システム | Git for Windows (2.40 以上) | バージョン導出およびリリースタグ管理 |
 | シェル環境 | Windows PowerShell 5.1 または PowerShell 7 (pwsh) | ビルド補助スクリプトおよび検証スクリプトの実行 |
 | GitHub コマンドラインツール | GitHub CLI (`gh`) | GitHub Releases の発行・アセット検証 |
-| 外部依存パッケージ | `GenericRecognition.Workbench.*` (0.1.7) | GitHub Packages またはローカル NuGet フィードから供給 |
+| 外部依存パッケージ | `GenericRecognition.Workbench.*` (0.1.15) | GitHub Packages またはローカル NuGet フィードから供給 |
 
 > **注意 (PowerShell 実行ポリシー):**  
 > スクリプト実行が制限されている環境では、作業用 PowerShell プロンプトで `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` を実行してスクリプトの実行を許可してください。
@@ -136,22 +136,22 @@ C:\Users\o_leg\source\repos\BlinkObserverTool\
 
 ## 4. 依存パッケージの準備と GitHub Packages 認証
 
-BlinkObserverTool は、汎用画像認識基盤である `GenericRecognition.Workbench.*` パッケージ (バージョン `0.1.7`) を参照します。
+BlinkObserverTool は、汎用画像認識基盤である `GenericRecognition.Workbench.*` パッケージ (バージョン `0.1.15`) を参照します。
 
 ### 4.1 ローカル環境でのパッケージ準備 (ローカルフィード利用)
 
-同一マシン上の `C:\Users\o_leg\source\repos\GenericRecognitionWorkbench` からローカルにパッケージを供給する場合は、以下のコマンドで正式版 `0.1.7` として `LocalPackages` ディレクトリへ pack します。
+同一マシン上の `C:\Users\o_leg\source\repos\GenericRecognitionWorkbench` からローカルにパッケージを供給する場合は、以下のコマンドで正式版 `0.1.15` として `LocalPackages` ディレクトリへ pack します。
 
 ```powershell
 # GenericRecognitionWorkbench リポジトリルートで実行
 cd C:\Users\o_leg\source\repos\GenericRecognitionWorkbench
-dotnet pack .\Recognition.Core\Recognition.Core.csproj -c Release -o .\LocalPackages -p:Version=0.1.7
-dotnet pack .\Recognition.Infrastructure\Recognition.Infrastructure.csproj -c Release -o .\LocalPackages -p:Version=0.1.7
-dotnet pack .\Recognition.Wpf\Recognition.Wpf.csproj -c Release -o .\LocalPackages -p:Version=0.1.7
+dotnet pack .\Recognition.Core\Recognition.Core.csproj -c Release -o .\LocalPackages -p:Version=0.1.15
+dotnet pack .\Recognition.Infrastructure\Recognition.Infrastructure.csproj -c Release -o .\LocalPackages -p:Version=0.1.15
+dotnet pack .\Recognition.Wpf\Recognition.Wpf.csproj -c Release -o .\LocalPackages -p:Version=0.1.15
 ```
 
 > **重要:**  
-> `-p:Version=0.1.7` を指定せずに pack すると、開発用の接尾辞が付与された `0.1.7-local` が生成されます。BlinkObserverTool は正式版 `0.1.7` を厳格に参照するため、必ずバージョンを指定して pack してください。
+> `-p:Version=0.1.15` を指定せずに pack すると、開発用の接尾辞が付与された `0.1.15-local` が生成されます。BlinkObserverTool は正式版 `0.1.15` を厳格に参照するため、必ずバージョンを指定して pack してください。
 
 ### 4.2 GitHub Packages (GitHub パッケージレジストリ) 認証
 
@@ -186,7 +186,7 @@ dotnet nuget add source "https://nuget.pkg.github.com/<PACKAGE_OWNER>/index.json
 
 - **HTTP 401 (Unauthorized):** 個人用アクセス トークン (PAT) の有効期限切れ、または `read:packages` スコープの欠落。新しい PAT を生成してパッケージソースの認証情報を再登録してください。
 - **HTTP 404 (Not Found):** パッケージ側の **Manage Actions access** に本リポジトリが追加されていないか、パッケージ所有者名（`<PACKAGE_OWNER>` またはリポジトリ変数 `GENERIC_RECOGNITION_PACKAGE_OWNER`）が誤っています。
-- **バージョン不一致:** `GenericRecognitionWorkbench` 側で `-p:Version=0.1.7` を付けずに pack すると `0.1.7-local` が生成され、BlinkObserverTool が要求する正式版 `0.1.7` と一致せず復元エラーになります。
+- **バージョン不一致:** `GenericRecognitionWorkbench` 側で `-p:Version=0.1.15` を付けずに pack すると `0.1.15-local` が生成され、BlinkObserverTool が要求する正式版 `0.1.15` と一致せず復元エラーになります。
 
 ---
 
@@ -240,6 +240,7 @@ Visual Studio の構成マネージャーで `Debug` を選択し、`BlinkObserv
 - Git タグの存在は要求されません。
 - バージョン解決スクリプトは常にバージョン `0.0.0` (情報バージョン: `0.0.0-local+g<ショートコミットハッシュ>`) を返します。
 - 生成される MSI の `ProductVersion` も `0.0.0` となります。
+- ただし local 用 `Debug` MSI には same-version upgrade を有効化しているため、再ビルドした新しい local MSI を既存の local インストールへ上書き適用できます。
 
 ### 6.2 CLI によるビルド手順
 
@@ -488,7 +489,7 @@ MSI パッケージの更新において、既存ユーザー環境の安定性�
 | インストールスコープ | `Scope="perUser"` (`LocalAppDataFolder`) を固定 | `ALLUSERS` によるマシン全体インストールへ途中で変更すると、権限昇格の不整合や配置先の断絶が発生する。 |
 | ダウングレード抑止 | `AllowDowngrades="no"` を固定 | 新しいバージョンが導入された環境への旧バージョンの上書き導入を明示的に遮断する。 |
 | ユーザーデータ保護 | インストール先ディレクトリに設定やデータを保存しない | アプリ本体は `%LOCALAPPDATA%\Programs\...` に配置し、設定やプロファイルは `%LOCALAPPDATA%\pokenae\BlinkObserverTool` に完全分離する。アンインストール時もユーザーデータは保持される。 |
-| 内部整合性評価 (Internal Consistency Evaluator: ICE) | 理由のない一括抑制の禁止 | ICE38 および ICE64 は HKCU レジストリキーパスと `RemoveFolder` コンポーネントで解決済み。per-user 固定設計の根拠がある ICE91 のみ抑制する。 |
+| 内部整合性評価 (Internal Consistency Evaluator: ICE) | 理由のない一括抑制の禁止 | ICE38 および ICE64 は HKCU レジストリキーパスと `RemoveFolder` コンポーネントで解決済み。Release は per-user 固定設計の根拠がある ICE91 のみ抑制し、local Debug は same-version upgrade を意図的に使うため ICE61 も追加で抑制する。 |
 
 ---
 
@@ -593,7 +594,7 @@ GitHub Actions の `release.yml` が途中でエラーとなり、GitHub Release
 
 - [ ] `main` ブランチにすべての変更がマージされ、直近の CI がグリーン (成功) であることを確認した。
 - [ ] 同梱プロファイルを変更した場合は、`manifest.json` の SHA-256 ハッシュ値と `manifest.version` が更新されていることを確認した。
-- [ ] 依存する `GenericRecognition.Workbench.*` の正式版 (例: `0.1.7`) が GitHub Packages 上に存在し、アクセス可能であることを確認した。
+- [ ] 依存する `GenericRecognition.Workbench.*` の正式版 (例: `0.1.15`) が GitHub Packages 上に存在し、アクセス可能であることを確認した。
 - [ ] ローカル環境で未コミットの変更がないことを確認した (`git status --short` が空)。
 
 ### 15.2 リリース実行

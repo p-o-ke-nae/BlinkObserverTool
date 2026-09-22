@@ -146,13 +146,12 @@ internal sealed class BlinkRecognizer : IRecognitionMethod
         using var result = new Mat();
         Cv2.MatchTemplate(normalizedSearch, trackingTemplate, result, TemplateMatchModes.CCoeffNormed);
         Cv2.MinMaxLoc(result, out _, out var confidence, out _, out var location);
-
-        var scale = NormalizedEyeWidth / (double)Math.Max(1, candidate.Width);
         if (confidence < 0.55d)
         {
             return new TrackingResult(candidate, Math.Clamp(confidence, 0d, 1d));
         }
 
+        var scale = NormalizedEyeWidth / (double)Math.Max(1, candidate.Width);
         var matchedX = search.X + (int)Math.Round(location.X / scale);
         var matchedY = search.Y + (int)Math.Round(location.Y / scale);
         var x = Math.Clamp(matchedX, candidate.X - 2, candidate.X + 2);

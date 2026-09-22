@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <PackageReference Include="GenericRecognition.Workbench.Abstractions" Version="0.1.7" />
-    <PackageReference Include="GenericRecognition.Workbench.Wpf" Version="0.1.7" />
+    <PackageReference Include="GenericRecognition.Workbench.Abstractions" Version="[0.1.16]" />
+    <PackageReference Include="GenericRecognition.Workbench.Wpf" Version="[0.1.16]" />
     <PackageReference Include="OpenCvSharp4" Version="4.13.0.20260627" />
   </ItemGroup>
 

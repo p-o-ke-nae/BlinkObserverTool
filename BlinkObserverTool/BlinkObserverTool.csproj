@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <PackageReference Include="GenericRecognition.Workbench.Abstractions" Version="0.1.7" />
-    <PackageReference Include="GenericRecognition.Workbench.Infrastructure" Version="0.1.7" />
-    <PackageReference Include="GenericRecognition.Workbench.Wpf" Version="0.1.7" />
+    <PackageReference Include="GenericRecognition.Workbench.Abstractions" Version="[0.1.16]" />
+    <PackageReference Include="GenericRecognition.Workbench.Infrastructure" Version="[0.1.16]" />
+    <PackageReference Include="GenericRecognition.Workbench.Wpf" Version="[0.1.16]" />
     <PackageReference Include="InputInterceptor" Version="2.2.1" />
   </ItemGroup>
 

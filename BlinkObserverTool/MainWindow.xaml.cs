@@ -190,6 +190,7 @@ public partial class MainWindow : Window
         await ExecuteRecognitionActionAsync(async () =>
         {
             await EnsureSelectedProfileLoadedAsync();
+            UpdateBlinkModelStatus();
             selectedRecognitionProfileName = host.ViewModel.SelectedProfileEntry?.Name ?? selectedRecognitionProfileName;
             UpdateCurrentConfigurationSummary();
             AppendToolLog($"認識プロファイルを読み込みました: {selectedRecognitionProfileName}");
@@ -212,6 +213,8 @@ public partial class MainWindow : Window
         await ExecuteRecognitionActionAsync(async () =>
         {
             await EnsureSelectedProfileLoadedAsync();
+            ValidateFixedBlinkModelForObservation();
+            UpdateBlinkModelStatus();
             recognitionKeyForwarder.CurrentConfiguration = configuration;
             recognitionKeyForwarder.ResetAggregationState();
             await host.ViewModel.StartAsync();
@@ -378,6 +381,7 @@ public partial class MainWindow : Window
         }
 
         UpdateCurrentConfigurationSummary();
+        BlinkModelStatusTextBlock.Text = "モデル状態: プロファイルを読み込んでください。";
     }
 
     private void ConfigurationInput_Changed(object sender, RoutedEventArgs e)
@@ -455,7 +459,11 @@ public partial class MainWindow : Window
             {
                 Owner = this
             };
-            blinkSetupWindow.Closed += (_, _) => blinkSetupWindow = null;
+            blinkSetupWindow.Closed += (_, _) =>
+            {
+                blinkSetupWindow = null;
+                UpdateBlinkModelStatus();
+            };
         }
 
         if (!blinkSetupWindow.IsVisible)
@@ -566,6 +574,7 @@ public partial class MainWindow : Window
         {
             host.ViewModel.SelectedProfileEntry = profileEntry;
             await host.ViewModel.LoadProfileAsync();
+            UpdateBlinkModelStatus();
         }
         else
         {
@@ -588,7 +597,51 @@ public partial class MainWindow : Window
 
         selectedRecognitionProfileName = host.ViewModel.SelectedProfileEntry.Name;
         await host.ViewModel.LoadProfileAsync();
+        UpdateBlinkModelStatus();
     }
+
+    private void ValidateFixedBlinkModelForObservation()
+    {
+        var selected = host.ViewModel.RecognitionMethod.SelectedOption;
+        if (!string.Equals(selected?.Descriptor.Id, FixedBlinkRecognitionFactory.ComponentId, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        var parameters = GetRecognitionParameters();
+        var model = FixedBlinkModel.Load(parameters);
+        if (parameters.GetRoi("Eye") != model.EyeRegion)
+        {
+            throw new FixedBlinkModelException(
+                "blink-model-roi-mismatch",
+                "目 ROI が固定学習モデルの採取時から変更されています。瞬き観測セットアップをやり直してください。");
+        }
+
+    }
+
+    private void UpdateBlinkModelStatus()
+    {
+        if (!uiReady || BlinkModelStatusTextBlock is null)
+        {
+            return;
+        }
+
+        var componentId = host.ViewModel.RecognitionMethod.SelectedOption?.Descriptor.Id;
+        BlinkModelStatusTextBlock.Text = componentId switch
+        {
+            FixedBlinkRecognitionFactory.ComponentId =>
+                $"モデル状態: {FixedBlinkRecognitionFactory.GetModelStatus(GetRecognitionParameters())}",
+            BlinkRecognitionFactory.ComponentId =>
+                "モデル状態: 互換の瞬き特徴認識です。固定モデルを使うには専用セットアップが必要です。",
+            _ => "モデル状態: 固定瞬きモデルを使用しない認識方式です。"
+        };
+    }
+
+    private Dictionary<string, string> GetRecognitionParameters() =>
+        host.ViewModel.RecognitionMethod.Parameters.ToDictionary(
+            parameter => parameter.Definition.Key,
+            parameter => parameter.Value,
+            StringComparer.OrdinalIgnoreCase);
 
     private BlinkSendConfiguration BuildCurrentConfiguration(bool allowIncompleteKeySendSettings = false)
     {

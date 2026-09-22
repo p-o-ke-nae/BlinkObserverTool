@@ -70,9 +70,15 @@
                                    Foreground="#B35A00"
                                    Text="{Binding ProfileLoadHint}"
                                    TextWrapping="Wrap" />
+                        <TextBlock x:Name="BlinkModelStatusTextBlock"
+                                   Margin="0,4,0,0"
+                                   FontWeight="SemiBold"
+                                   Foreground="#B35A00"
+                                   Text="モデル状態: プロファイルを読み込んでください。"
+                                   TextWrapping="Wrap" />
                         <TextBlock Margin="0,4,0,0"
                                    Foreground="#555555"
-                                   Text="瞬き認識は専用セットアップでプレビュー上の目を囲むだけで設定できます。テンプレートマッチング等の詳細設定は自動認識設定を使用してください。"
+                                   Text="固定テンプレート瞬き認識は専用セットアップで ROI、開眼、閉眼を順に採取します。テンプレートマッチング等の詳細設定は自動認識設定を使用してください。"
                                    TextWrapping="Wrap" />
                         <WrapPanel Margin="0,8,0,0">
                             <Button Margin="0,0,8,8" Padding="10,6" Click="LoadProfile_Click" Content="プロファイル読込" />
@@ -263,6 +269,10 @@
                     <TextBlock Margin="0,6,0,0" FontWeight="SemiBold" Foreground="#B35A00" Text="{Binding OperationStatusText}" />
                     <TextBlock Margin="0,6,0,0" Text="{Binding LatestDetection}" />
                     <TextBlock Margin="0,4,0,0" Text="{Binding LatestText}" TextWrapping="Wrap" />
+                    <TextBlock Margin="0,4,0,0"
+                               Foreground="#555555"
+                               Text="認識表示: blink-unknown=判定不能（イベント抑止）、blink-reacquiring=連続開眼確認中"
+                               TextWrapping="Wrap" />
                     <TextBlock Margin="0,8,0,0" FontWeight="SemiBold" Text="観測動作状態" />
                     <TextBlock x:Name="KeySendStatusTextBlock" Text="待機中" TextWrapping="Wrap" />
                     <TextBlock Margin="0,4,0,0" FontWeight="SemiBold" Text="現在の設定" />
