@@ -35,10 +35,8 @@ WiX SDK と拡張はプロジェクトの `PackageReference` から復元され�
 dotnet build .\installer\BlinkObserverTool.Installer\BlinkObserverTool.Installer.wixproj -c Debug
 ```
 
-タグなしのローカルビルドには `Debug` を使用します。`Debug` MSI は `ProductVersion`
-が `0.0.0` のままでも、再ビルドした local パッケージで既存の local インストールを
-置き換えられるよう same-version upgrade を有効化しています。`Release` はコミット済み
-の HEAD に単一のリリースタグを作成してから実行します。
+タグなしのローカルビルドには `Debug` を使用します。`Release` はコミット済みの HEAD に
+単一のリリースタグを作成してから実行します。
 
 ```powershell
 git status --short
@@ -78,8 +76,6 @@ dotnet build .\installer\BlinkObserverTool.Installer\BlinkObserverTool.Installer
 
 ICE38 と ICE64 は抑制せず、ユーザープロファイル配下の各コンポーネントに HKCU
 レジストリ KeyPath とアンインストール時のディレクトリ削除を生成して解消しています。
-Release では ICE91 のみ、`LocalAppDataFolder` 固定の per-user パッケージであることを
-意図した設計として抑制します。per-machine インストールへ切り替えられないため、ICE91 が
-警告する `ALLUSERS` に応じた配置先の切り替えは適用対象外です。加えて local 用 `Debug`
-ビルドでは、再ビルドした `0.0.0` MSI を既存の local インストールへ置き換える same-version
-upgrade を意図的に有効化するため、対応する ICE61 も抑制します。
+ICE91 のみ、`LocalAppDataFolder` 固定の per-user パッケージであることを意図した設計として
+抑制します。per-machine インストールへ切り替えられないため、ICE91 が警告する
+`ALLUSERS` に応じた配置先の切り替えは適用対象外です。

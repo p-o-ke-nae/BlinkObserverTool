@@ -18,7 +18,7 @@ dotnet test .\BlinkObserverTool.BlinkRecognition.Tests\BlinkObserverTool.BlinkRe
 dotnet build .\installer\BlinkObserverTool.Installer\BlinkObserverTool.Installer.wixproj -c Debug --no-restore
 ```
 
-Visual Studio users open `BlinkObserverTool.slnx`, select `Debug`, and build `BlinkObserverTool.Installer`. Debug/local builds use version `0.0.0`, and the MSI enables same-version upgrades so a rebuilt local installer can replace an older local install on the same machine.
+Visual Studio users open `BlinkObserverTool.slnx`, select `Debug`, and build `BlinkObserverTool.Installer`. Debug/local builds use version `0.0.0`.
 
 To verify a Release locally, commit all intended changes, create the tag on that exact commit, select `Release`, then build the installer project. The CLI equivalent is:
 

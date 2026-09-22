@@ -7,8 +7,7 @@
     <Configurations>Debug;Release</Configurations>
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-    <InstallerSuppressIces>ICE91</InstallerSuppressIces>
-    <SuppressIces>$(InstallerSuppressIces)</SuppressIces>
+    <SuppressIces>ICE91</SuppressIces>
     <GeneratedInstallerConfigDir>$(MSBuildProjectDirectory)\obj\$(Configuration)\generated</GeneratedInstallerConfigDir>
     <GeneratedInstallerConfigPath>$(GeneratedInstallerConfigDir)\InstallerConfig.props</GeneratedInstallerConfigPath>
     <PowerShellExe Condition="'$(PowerShellExe)' == ''">$(SystemRoot)\System32\WindowsPowerShell\v1.0\powershell.exe</PowerShellExe>
@@ -38,9 +37,6 @@
     </XmlPeek>
     <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerVersion/text()">
       <Output TaskParameter="Result" PropertyName="InstallerVersion" />
-    </XmlPeek>
-    <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerVersionSource/text()">
-      <Output TaskParameter="Result" PropertyName="InstallerVersionSource" />
     </XmlPeek>
     <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerUpgradeCode/text()">
       <Output TaskParameter="Result" PropertyName="InstallerUpgradeCode" />
@@ -78,16 +74,11 @@
 
     <PropertyGroup>
       <InstallerPublishConfiguration Condition="'$(InstallerPublishConfiguration)' == ''">$(Configuration)</InstallerPublishConfiguration>
-      <InstallerAllowSameVersionUpgrades Condition="'$(InstallerVersionSource)' == 'local'">yes</InstallerAllowSameVersionUpgrades>
-      <InstallerAllowSameVersionUpgrades Condition="'$(InstallerAllowSameVersionUpgrades)' == ''">no</InstallerAllowSameVersionUpgrades>
-      <InstallerSuppressIces Condition="'$(InstallerVersionSource)' == 'local'">ICE91;ICE61</InstallerSuppressIces>
-      <SuppressIces>$(InstallerSuppressIces)</SuppressIces>
       <DefineConstants>
         $(DefineConstants);
         ProductName=$(InstallerProductName);
         Manufacturer=$(InstallerManufacturer);
         ProductVersion=$(InstallerVersion);
-        AllowSameVersionUpgrades=$(InstallerAllowSameVersionUpgrades);
         UpgradeCode=$(InstallerUpgradeCode);
         AppDirectoryName=$(InstallerAppDirectoryName);
         CommonCompanyDirName=$(InstallerCommonCompanyDirName);

@@ -88,7 +88,6 @@ Require-Value $settings.AppSourceDir "AppSourceDir"
 
 $upgradeCode = [string]$settings.UpgradeCode
 $version = [string]$settings.Version
-$versionSource = "configured"
 $appSourceDir = [string]$settings.AppSourceDir
 $mainExecutableName = [string]$settings.MainExecutableName
 $iconFilePath = [string]$settings.IconFilePath
@@ -177,7 +176,6 @@ if ([string]::IsNullOrWhiteSpace($version) -or $version -in @("auto", "git") -or
     }
     $resolvedVersion = $versionJson | ConvertFrom-Json
     $gitVersion = [string]$resolvedVersion.MsiVersion
-    $versionSource = [string]$resolvedVersion.Source
     if ($Configuration -eq "Release" -and $version -notin @("", "auto", "git") -and $version -ne $gitVersion) {
         throw "Configured installer Version '$version' conflicts with the HEAD Git tag version '$gitVersion'."
     }
@@ -217,7 +215,6 @@ $propsContent = @"
     <InstallerProductName>$(Escape-Xml([string]$settings.ProductName))</InstallerProductName>
     <InstallerManufacturer>$(Escape-Xml([string]$settings.Manufacturer))</InstallerManufacturer>
     <InstallerVersion>$(Escape-Xml($version))</InstallerVersion>
-    <InstallerVersionSource>$(Escape-Xml($versionSource))</InstallerVersionSource>
     <InstallerUpgradeCode>$(Escape-Xml($upgradeCode))</InstallerUpgradeCode>
     <InstallerAppDirectoryName>$(Escape-Xml([string]$settings.AppDirectoryName))</InstallerAppDirectoryName>
     <InstallerCommonCompanyDirName>$(Escape-Xml([string]$settings.CommonCompanyDirName))</InstallerCommonCompanyDirName>

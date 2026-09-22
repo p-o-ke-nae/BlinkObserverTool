@@ -240,7 +240,6 @@ Visual Studio の構成マネージャーで `Debug` を選択し、`BlinkObserv
 - Git タグの存在は要求されません。
 - バージョン解決スクリプトは常にバージョン `0.0.0` (情報バージョン: `0.0.0-local+g<ショートコミットハッシュ>`) を返します。
 - 生成される MSI の `ProductVersion` も `0.0.0` となります。
-- ただし local 用 `Debug` MSI には same-version upgrade を有効化しているため、再ビルドした新しい local MSI を既存の local インストールへ上書き適用できます。
 
 ### 6.2 CLI によるビルド手順
 
@@ -489,7 +488,7 @@ MSI パッケージの更新において、既存ユーザー環境の安定性�
 | インストールスコープ | `Scope="perUser"` (`LocalAppDataFolder`) を固定 | `ALLUSERS` によるマシン全体インストールへ途中で変更すると、権限昇格の不整合や配置先の断絶が発生する。 |
 | ダウングレード抑止 | `AllowDowngrades="no"` を固定 | 新しいバージョンが導入された環境への旧バージョンの上書き導入を明示的に遮断する。 |
 | ユーザーデータ保護 | インストール先ディレクトリに設定やデータを保存しない | アプリ本体は `%LOCALAPPDATA%\Programs\...` に配置し、設定やプロファイルは `%LOCALAPPDATA%\pokenae\BlinkObserverTool` に完全分離する。アンインストール時もユーザーデータは保持される。 |
-| 内部整合性評価 (Internal Consistency Evaluator: ICE) | 理由のない一括抑制の禁止 | ICE38 および ICE64 は HKCU レジストリキーパスと `RemoveFolder` コンポーネントで解決済み。Release は per-user 固定設計の根拠がある ICE91 のみ抑制し、local Debug は same-version upgrade を意図的に使うため ICE61 も追加で抑制する。 |
+| 内部整合性評価 (Internal Consistency Evaluator: ICE) | 理由のない一括抑制の禁止 | ICE38 および ICE64 は HKCU レジストリキーパスと `RemoveFolder` コンポーネントで解決済み。per-user 固定設計の根拠がある ICE91 のみ抑制する。 |
 
 ---
 

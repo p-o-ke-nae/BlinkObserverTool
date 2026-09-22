@@ -79,7 +79,6 @@
     Compressed="yes">
 
     <MajorUpgrade
-      AllowSameVersionUpgrades="$(var.AllowSameVersionUpgrades)"
       AllowDowngrades="no"
       DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 

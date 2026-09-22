@@ -68,7 +68,7 @@ Camera 3、1280x720 を使用するため、入力デバイスが異なる場合
 
 ## インストーラー
 
-インストーラーは `installer\BlinkObserverTool.Installer` にあります。プロジェクトの1回のビルドでアプリの publish と MSI 作成を行います。Debug ビルドはローカル用 `0.0.0`、Release ビルドは HEAD の単一 Git タグ `vMAJOR.MINOR.PATCH` をアプリと MSI のバージョンに使用します。Debug/local MSI は `0.0.0` のままでも再ビルド結果で既存の local インストールを置き換えられるよう same-version upgrade を有効化しています。Release は Git メタデータなし、タグなし、不正または複数のタグ、MSI の数値上限を超えるタグで失敗します。Visual Studio と CLI の手順は `installer\README.md` を参照してください。開発者および運用者向けの詳細な手順は [開発者・運用者向けリリース運用マニュアル](docs/developer-release-manual.ja.md) を参照してください。一般利用者向けのインストール、更新、アンインストール、プロファイル保護、物理入力ドライバ導入などの手順は [利用者向けインストーラー導入マニュアル](docs/user-installer-manual.ja.md) を参照してください。
+インストーラーは `installer\BlinkObserverTool.Installer` にあります。プロジェクトの1回のビルドでアプリの publish と MSI 作成を行います。Debug ビルドはローカル用 `0.0.0`、Release ビルドは HEAD の単一 Git タグ `vMAJOR.MINOR.PATCH` をアプリと MSI のバージョンに使用します。Release は Git メタデータなし、タグなし、不正または複数のタグ、MSI の数値上限を超えるタグで失敗します。Visual Studio と CLI の手順は `installer\README.md` を参照してください。開発者および運用者向けの詳細な手順は [開発者・運用者向けリリース運用マニュアル](docs/developer-release-manual.ja.md) を参照してください。一般利用者向けのインストール、更新、アンインストール、プロファイル保護、物理入力ドライバ導入などの手順は [利用者向けインストーラー導入マニュアル](docs/user-installer-manual.ja.md) を参照してください。
 
 ## 7genBlinkSearch 向けメモ
 
