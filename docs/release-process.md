@@ -75,3 +75,7 @@ release preparation record or pull request. A successful automated workflow does
 The MSI is currently unsigned. SHA-256 verifies download integrity but does not provide publisher identity or Windows trust; code signing must be added as a separate secured release-stage capability.
 When signing is introduced, keep certificates and private keys only in GitHub Secrets or an
 OIDC-compatible signing service. Never place signing secrets in the repository, release assets, or logs.
+
+The default profile files referenced by `BlinkObserverTool\DefaultProfiles\manifest.json` must be
+tracked in Git. Source videos and other local verification material may remain untracked, but a
+CI checkout must contain every profile and template file that the MSI validation requires.
