@@ -405,3 +405,9 @@ FodyWeavers.xsd
 installer/BlinkObserverTool.Installer/Generated/
 installer/BlinkObserverTool.Installer/sample-app/
 reference/
+!reference/verified-profiles/
+!reference/verified-profiles/**/
+!reference/verified-profiles/**/profile.json
+!reference/verified-profiles/**/images/
+!reference/verified-profiles/**/images/recognition/
+!reference/verified-profiles/**/images/recognition/template.png
