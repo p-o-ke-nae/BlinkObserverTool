@@ -22,7 +22,14 @@ if ($Tag -cnotmatch '^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$') {
     throw "Tag must be vMAJOR.MINOR.PATCH."
 }
 
-$release = gh api "repos/$Repository/releases/tags/$Tag" | ConvertFrom-Json
+$release = @(
+    gh api --paginate "repos/$Repository/releases?per_page=100" |
+        ConvertFrom-Json |
+        Where-Object { $_.tag_name -cne $null -and $_.tag_name -cne "" -and $_.tag_name -ceq $Tag }
+) | Select-Object -First 1
+if ($null -eq $release) {
+    throw "GitHub Release with tag '$Tag' was not found, including draft releases."
+}
 if ($release.tag_name -cne $Tag) {
     throw "GitHub Release tag '$($release.tag_name)' does not match '$Tag'."
 }
