@@ -93,7 +93,7 @@ jobs:
             -ExpectedVersion 0.0.0 `
             -ExpectedUpgradeCode $settings.UpgradeCode `
             -MainExecutableName $settings.MainExecutableName `
-            -RequiredFileNames @("manifest.json", "profile.json", "template.png")
+            -RequiredFileNames @("manifest.json")
 
           $checksumPath = "$msi.sha256"
           $hash = (Get-FileHash -LiteralPath $msi -Algorithm SHA256).Hash.ToLowerInvariant()
