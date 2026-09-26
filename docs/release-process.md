@@ -36,19 +36,42 @@ dotnet build .\installer\BlinkObserverTool.Installer\BlinkObserverTool.Installer
 
 Release requires exactly one `vMAJOR.MINOR.PATCH` tag at `HEAD`. Visual Studio builds use the
 same resolver and validation rules; after building, run the validation command above against its MSI.
+The release workflow additionally generates `manifest.json`, validates it against
+`build\release-manifest.schema.json`, and verifies that its tag, MSI filename, SHA-256, and Release URL
+all identify the same release.
 
 ## Publish through GitHub
 
-1. Merge a green pull request into `main`.
-2. On an up-to-date local `main`, create an annotated tag: `git tag -a v1.2.3 -m "BlinkObserverTool v1.2.3"`.
-3. Push only that tag: `git push origin v1.2.3`.
-4. The release workflow validates the tag, restores packages, runs all tests, builds and inspects the MSI, writes its SHA-256 checksum, and creates the GitHub Release.
-5. Publish only `BlinkObserverTool.Installer.msi` and its `.sha256` file. Do not attach an EXE installer.
+1. Merge a green pull request into protected `main`.
+2. Complete the manual installer checklist below on the exact candidate commit. Do not create or push a release tag before this gate passes.
+3. On an up-to-date local `main`, create a new annotated tag: `git tag -a v1.2.3 -m "BlinkObserverTool v1.2.3"`.
+4. Push only that tag: `git push origin v1.2.3`.
+5. The release workflow validates the tag, restores packages, runs all tests, builds and inspects the MSI, creates the checksum and manifest, and uploads exactly these assets to a draft Release:
+   - `BlinkObserverTool.Installer.msi`
+   - `BlinkObserverTool.Installer.msi.sha256`
+   - `manifest.json`
+6. The workflow verifies the exact asset set and same-Release relationships before publishing the draft. Do not attach an EXE installer or other build output.
+
+## Mandatory manual installer gate
+
+- Clean installation
+- Major Upgrade from the previously distributed MSI
+- Rejection of an older MSI when the new version is installed
+- Uninstallation
+- Application launch and Start menu/Desktop shortcuts
+- Application version equals MSI `ProductVersion`
+- Default profile addition/update
+- Preservation of user-created and user-edited profiles
+
+Record the tested Windows version, old/new application versions, tester, date, and result in the
+release preparation record or pull request. A successful automated workflow does not replace this gate.
 
 ## Failure and rollback
 
-- A failed workflow creates no release; fix the cause, delete the remote tag, move/recreate it on the corrected commit, and push it again only if the MSI was never distributed.
+- Never move or reuse a pushed/shared release tag, even when its workflow failed or the Release remained a draft. Fix forward with a new patch version.
 - If a release or MSI was already distributed, never replace assets under the same version. Fix forward with a higher patch version and retain the current SemVer-line `UpgradeCode`.
-- If an invalid GitHub Release was created, mark it unavailable or delete it, but treat the version as consumed once users may have downloaded it.
+- If an invalid or incomplete GitHub Release was created, leave it as a draft or delete it after recording the cause. The tag/version remains consumed.
 
 The MSI is currently unsigned. SHA-256 verifies download integrity but does not provide publisher identity or Windows trust; code signing must be added as a separate secured release-stage capability.
+When signing is introduced, keep certificates and private keys only in GitHub Secrets or an
+OIDC-compatible signing service. Never place signing secrets in the repository, release assets, or logs.

@@ -4,6 +4,8 @@
 
 BlinkObserverTool は、ゲーム画面の瞬きをテンプレートマッチングや瞬き特徴認識などの画像認識で検出し、検出イベントに応じて指定ウィンドウへキー送信する観測補助ツールです。
 
+![BlinkObserverTool の機能概要](docs/images/blink-observer-tool-overview.svg)
+
 | 項目 | 内容 |
 |---|---|
 | 目的 | 瞬き検出を人手観測の代わりに行い、対象ツールへ Shift などのキーを送る |
@@ -60,15 +62,17 @@ Camera 3、1280x720 を使用するため、入力デバイスが異なる場合
 
 ## セットアップ
 
-1. `GenericRecognition.Workbench.*` 0.1.15をGitHub Packagesから復元できるよう認証する。
-   ローカル開発では、同じ0.1.15を
+1. `GenericRecognition.Workbench.*` 0.1.16をGitHub Packagesから復元できるよう認証する。
+   ローカル開発では、同じ0.1.16を
    `..\GenericRecognitionWorkbench\LocalPackages`へpackしてもよい
 2. `dotnet restore .\BlinkObserverTool.slnx`
 3. `dotnet build .\BlinkObserverTool.slnx`
 
 ## インストーラー
 
-インストーラーは `installer\BlinkObserverTool.Installer` にあります。プロジェクトの1回のビルドでアプリの publish と MSI 作成を行います。Debug ビルドはローカル用 `0.0.0`、Release ビルドは HEAD の単一 Git タグ `vMAJOR.MINOR.PATCH` をアプリと MSI のバージョンに使用します。Release は Git メタデータなし、タグなし、不正または複数のタグ、MSI の数値上限を超えるタグで失敗します。Visual Studio と CLI の手順は `installer\README.md` を参照してください。開発者および運用者向けの詳細な手順は [開発者・運用者向けリリース運用マニュアル](docs/developer-release-manual.ja.md) を参照してください。一般利用者向けのインストール、更新、アンインストール、プロファイル保護、物理入力ドライバ導入などの手順は [利用者向けインストーラー導入マニュアル](docs/user-installer-manual.ja.md) を参照してください。
+インストーラーは `installer\BlinkObserverTool.Installer` にあります。プロジェクトの1回のビルドでアプリの publish と MSI 作成を行います。Debug ビルドはローカル用 `0.0.0`、Release ビルドは HEAD の単一 Git タグ `vMAJOR.MINOR.PATCH` をアプリと MSI のバージョンに使用します。Release は Git メタデータなし、タグなし、不正または複数のタグ、MSI の数値上限を超えるタグで失敗します。配布 MSI は現在未署名です。SHA-256 は改ざん検知に利用できますが、発行元の本人性は保証しません。
+
+Visual Studio と CLI の手順は `installer\README.md` を参照してください。開発者および運用者向けの詳細な手順は [開発者・運用者向けリリース運用マニュアル](docs/developer-release-manual.ja.md) を参照してください。一般利用者向けのインストール、更新、アンインストール、プロファイル保護、物理入力ドライバ導入などの手順は [利用者向けインストーラー導入マニュアル](docs/user-installer-manual.ja.md) を参照してください。pokenae.com 掲載用の機能・配布情報は [製品紹介資料](docs/product-overview.ja.md) にまとめています。
 
 ## 7genBlinkSearch 向けメモ
 
