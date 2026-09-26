@@ -41,6 +41,9 @@
     <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerUpgradeCode/text()">
       <Output TaskParameter="Result" PropertyName="InstallerUpgradeCode" />
     </XmlPeek>
+    <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerLegacyUpgradeCode/text()">
+      <Output TaskParameter="Result" PropertyName="InstallerLegacyUpgradeCode" />
+    </XmlPeek>
     <XmlPeek XmlInputPath="$(GeneratedInstallerConfigPath)" Query="/Project/PropertyGroup/InstallerAppDirectoryName/text()">
       <Output TaskParameter="Result" PropertyName="InstallerAppDirectoryName" />
     </XmlPeek>
@@ -80,6 +83,7 @@
         Manufacturer=$(InstallerManufacturer);
         ProductVersion=$(InstallerVersion);
         UpgradeCode=$(InstallerUpgradeCode);
+        LegacyUpgradeCode=$(InstallerLegacyUpgradeCode);
         AppDirectoryName=$(InstallerAppDirectoryName);
         CommonCompanyDirName=$(InstallerCommonCompanyDirName);
         CommonAppsRootDirName=$(InstallerCommonAppsRootDirName);
@@ -94,6 +98,7 @@
     <Error Condition="'$(InstallerProductName)' == ''" Text="InstallerProductName is required." />
     <Error Condition="'$(InstallerVersion)' == ''" Text="InstallerVersion is required." />
     <Error Condition="'$(InstallerUpgradeCode)' == ''" Text="InstallerUpgradeCode is required." />
+    <Error Condition="'$(InstallerLegacyUpgradeCode)' == ''" Text="InstallerLegacyUpgradeCode is required." />
     <Error Condition="'$(InstallerMainExecutableName)' == ''" Text="InstallerMainExecutableName is required." />
     <Error Condition="'$(InstallerAppSourceDir)' == ''" Text="InstallerAppSourceDir is required." />
   </Target>

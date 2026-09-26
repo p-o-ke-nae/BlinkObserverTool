@@ -82,6 +82,12 @@
       AllowDowngrades="no"
       DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 
+    <Upgrade Id="$(var.LegacyUpgradeCode)">
+      <UpgradeVersion Minimum="0.0.0"
+                      IncludeMinimum="yes"
+                      Property="LEGACY_UPGRADE_DETECTED" />
+    </Upgrade>
+
     <MediaTemplate EmbedCab="yes" />
     <?if $(var.AppIconFilePath) != "" ?>
     <Property Id="ARPPRODUCTICON" Value="AppIcon" />

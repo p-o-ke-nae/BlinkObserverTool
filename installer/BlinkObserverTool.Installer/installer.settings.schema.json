@@ -9,6 +9,7 @@
     "Manufacturer",
     "Version",
     "UpgradeCode",
+    "LegacyUpgradeCode",
     "AppDirectoryName",
     "CommonCompanyDirName",
     "CommonAppsRootDirName",
@@ -43,6 +44,10 @@
       ]
     },
     "UpgradeCode": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "LegacyUpgradeCode": {
       "type": "string",
       "format": "uuid"
     },

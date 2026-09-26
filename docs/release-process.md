@@ -29,7 +29,7 @@ dotnet build .\installer\BlinkObserverTool.Installer\BlinkObserverTool.Installer
 .\build\Test-MsiPackage.ps1 `
   -MsiPath .\installer\BlinkObserverTool.Installer\bin\Release\BlinkObserverTool.Installer.msi `
   -ExpectedVersion 1.2.3 `
-  -ExpectedUpgradeCode 813D1E2D-7D7A-4984-A062-81B06B5EBC26 `
+  -ExpectedUpgradeCode DE3231A1-62C5-4F03-B676-3F8ACCCCE08A `
   -MainExecutableName BlinkObserverTool.exe `
   -RequiredFileNames manifest.json,profile.json,template.png
 ```
@@ -48,7 +48,7 @@ same resolver and validation rules; after building, run the validation command a
 ## Failure and rollback
 
 - A failed workflow creates no release; fix the cause, delete the remote tag, move/recreate it on the corrected commit, and push it again only if the MSI was never distributed.
-- If a release or MSI was already distributed, never replace assets under the same version. Fix forward with a higher patch version and retain the same `UpgradeCode`.
+- If a release or MSI was already distributed, never replace assets under the same version. Fix forward with a higher patch version and retain the current SemVer-line `UpgradeCode`.
 - If an invalid GitHub Release was created, mark it unavailable or delete it, but treat the version as consumed once users may have downloaded it.
 
 The MSI is currently unsigned. SHA-256 verifies download integrity but does not provide publisher identity or Windows trust; code signing must be added as a separate secured release-stage capability.

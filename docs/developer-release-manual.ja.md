@@ -316,7 +316,7 @@ dotnet build .\installer\BlinkObserverTool.Installer\BlinkObserverTool.Installer
 .\build\Test-MsiPackage.ps1 `
   -MsiPath .\installer\BlinkObserverTool.Installer\bin\Release\BlinkObserverTool.Installer.msi `
   -ExpectedVersion 1.2.3 `
-  -ExpectedUpgradeCode 813D1E2D-7D7A-4984-A062-81B06B5EBC26 `
+  -ExpectedUpgradeCode DE3231A1-62C5-4F03-B676-3F8ACCCCE08A `
   -MainExecutableName BlinkObserverTool.exe `
   -RequiredFileNames @("manifest.json", "profile.json", "template.png")
 ```
@@ -356,7 +356,7 @@ Windows Installer の仕様により、各フィールドに設定可能な数�
 `build\Test-MsiPackage.ps1` は Windows Installer の COM オブジェクト (`WindowsInstaller.Installer`) を直接呼び出し、生成された MSI データベースを非破壊検査します。
 
 1. **ProductVersion 検証:** `Property` テーブルの `ProductVersion` が、期待されるバージョン値と完全一致するか検証。
-2. **UpgradeCode 検証:** `Property` テーブルの `UpgradeCode` が製品固定 GUID (`813D1E2D-7D7A-4984-A062-81B06B5EBC26`) と一致するか検証。
+2. **UpgradeCode 検証:** `Property` テーブルの `UpgradeCode` が現行 SemVer 系列の製品固定 GUID (`DE3231A1-62C5-4F03-B676-3F8ACCCCE08A`) と一致するか検証。
 3. **必須ファイル検証:** `File` テーブルを走査し、メイン実行ファイル (`BlinkObserverTool.exe`) および動作に必要な同梱プロファイルファイル群 (`manifest.json`, `profile.json`, `template.png`) が欠落なく格納されているか検証。
 
 ```powershell
@@ -364,7 +364,7 @@ Windows Installer の仕様により、各フィールドに設定可能な数�
 .\build\Test-MsiPackage.ps1 `
   -MsiPath .\installer\BlinkObserverTool.Installer\bin\Release\BlinkObserverTool.Installer.msi `
   -ExpectedVersion 1.2.3 `
-  -ExpectedUpgradeCode 813D1E2D-7D7A-4984-A062-81B06B5EBC26 `
+  -ExpectedUpgradeCode DE3231A1-62C5-4F03-B676-3F8ACCCCE08A `
   -MainExecutableName BlinkObserverTool.exe `
   -RequiredFileNames @("manifest.json", "profile.json", "template.png")
 ```
@@ -484,7 +484,7 @@ MSI パッケージの更新において、既存ユーザー環境の安定性�
 
 | 不変項目 | 要件 / 規定値 | 理由と影響 |
 |---|---|---|
-| `UpgradeCode` | `813D1E2D-7D7A-4984-A062-81B06B5EBC26` を固定 | 変更すると別製品扱いとなり、旧版の自動アンインストール (Major Upgrade) が機能しなくなる。 |
+| `UpgradeCode` | `DE3231A1-62C5-4F03-B676-3F8ACCCCE08A` を固定 | SemVer 系列の自動更新線を維持するため、今後は変更しない。旧日付ベース版の移行は `LegacyUpgradeCode` (`813D1E2D-7D7A-4984-A062-81B06B5EBC26`) で 1 回だけ吸収する。 |
 | インストールスコープ | `Scope="perUser"` (`LocalAppDataFolder`) を固定 | `ALLUSERS` によるマシン全体インストールへ途中で変更すると、権限昇格の不整合や配置先の断絶が発生する。 |
 | ダウングレード抑止 | `AllowDowngrades="no"` を固定 | 新しいバージョンが導入された環境への旧バージョンの上書き導入を明示的に遮断する。 |
 | ユーザーデータ保護 | インストール先ディレクトリに設定やデータを保存しない | アプリ本体は `%LOCALAPPDATA%\Programs\...` に配置し、設定やプロファイルは `%LOCALAPPDATA%\pokenae\BlinkObserverTool` に完全分離する。アンインストール時もユーザーデータは保持される。 |
@@ -559,7 +559,7 @@ GitHub Actions の `release.yml` が途中でエラーとなり、GitHub Release
 1. **修正フォワード (Fix-Forward) の徹底:**  
    不具合を修正した新しいコミットを作成し、**パッチバージョンを繰り上げた新しいタグ** (例: `v1.2.3` に不具合があった場合は `v1.2.4`) を作成して再リリースします。
 2. **自動修復の恩恵:**  
-   同一の `UpgradeCode` を維持して上位バージョンを発行することで、不具合のある `v1.2.3` を導入してしまったユーザーも、新しい `v1.2.4` の MSI を実行するだけで Windows Installer の Major Upgrade 機能により自動的かつ安全に修正版へ置き換わります。
+   同一の `UpgradeCode` を維持して上位バージョンを発行することで、不具合のある `v1.2.3` を導入してしまったユーザーも、新しい `v1.2.4` の MSI を実行するだけで Windows Installer の Major Upgrade 機能により自動的かつ安全に修正版へ置き換わります。なお、旧日付ベース版 (`LegacyUpgradeCode`) が残っている環境では、最初の SemVer 版インストール時にその旧版も自動削除されます。
 3. **不具合バージョンの無効化:**  
    GitHub 上の該当 Release を編集し、タイトルの先頭に `[DEPRECATED]` を付与するか、リリース説明文に利用中止と最新版への移行を明記します。必要に応じてリリースアセットを非公開化します。
 

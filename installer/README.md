@@ -55,7 +55,8 @@ dotnet build .\installer\BlinkObserverTool.Installer\BlinkObserverTool.Installer
 
 - `ProductName` / `Manufacturer`: MSI と「インストールされているアプリ」の表示
 - `Version`: `git`、`auto`、または `Major.Minor.Build`
-- `UpgradeCode`: 製品固有の固定 GUID。既存製品の更新では変更しない
+- `UpgradeCode`: 現行 SemVer 系列の製品固定 GUID
+- `LegacyUpgradeCode`: 日付ベース版から初回移行するときに自動削除対象として検出する旧 GUID
 - `AppDirectoryName`: 製品のインストール先ディレクトリ名
 - `CommonCompanyDirName` / `CommonAppsRootDirName`: 共通親ディレクトリ名
 - `MainExecutableName`: ショートカットの起動先
@@ -68,9 +69,11 @@ dotnet build .\installer\BlinkObserverTool.Installer\BlinkObserverTool.Installer
 
 ## 更新動作
 
-`UpgradeCode` を維持して `Version` を上げると Major Upgrade が行われます。同じ版または
-古い版によるダウングレードは拒否されます。インストール範囲、ショートカット、および
-アップグレード動作は `Package.wxs` で定義されています。
+`UpgradeCode` を維持して `Version` を上げると現行 SemVer 系列の Major Upgrade が行われます。
+また、`LegacyUpgradeCode` に一致する旧日付ベース版が見つかった場合は、初回インストール時に
+自動アンインストールしてから現行版へ移行します。同じ版または古い版によるダウングレードは
+拒否されます。インストール範囲、ショートカット、およびアップグレード動作は `Package.wxs`
+で定義されています。
 
 ## MSI 検証
 

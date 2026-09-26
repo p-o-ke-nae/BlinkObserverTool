@@ -27,6 +27,7 @@ $supportedProperties = @(
     'Manufacturer',
     'Version',
     'UpgradeCode',
+    'LegacyUpgradeCode',
     'AppDirectoryName',
     'CommonCompanyDirName',
     'CommonAppsRootDirName',
@@ -49,6 +50,7 @@ $requiredProperties = @(
     'Manufacturer',
     'Version',
     'UpgradeCode',
+    'LegacyUpgradeCode',
     'AppDirectoryName',
     'CommonCompanyDirName',
     'CommonAppsRootDirName',
@@ -80,6 +82,7 @@ Require-Value $settings.ProductName "ProductName"
 Require-Value $settings.Manufacturer "Manufacturer"
 Require-Value $settings.Version "Version"
 Require-Value $settings.UpgradeCode "UpgradeCode"
+Require-Value $settings.LegacyUpgradeCode "LegacyUpgradeCode"
 Require-Value $settings.AppDirectoryName "AppDirectoryName"
 Require-Value $settings.CommonCompanyDirName "CommonCompanyDirName"
 Require-Value $settings.CommonAppsRootDirName "CommonAppsRootDirName"
@@ -87,6 +90,7 @@ Require-Value $settings.MainExecutableName "MainExecutableName"
 Require-Value $settings.AppSourceDir "AppSourceDir"
 
 $upgradeCode = [string]$settings.UpgradeCode
+$legacyUpgradeCode = [string]$settings.LegacyUpgradeCode
 $version = [string]$settings.Version
 $appSourceDir = [string]$settings.AppSourceDir
 $mainExecutableName = [string]$settings.MainExecutableName
@@ -131,6 +135,16 @@ if (-not [Guid]::TryParse($upgradeCode, [ref]$parsedGuid)) {
     throw "UpgradeCode must be a valid GUID."
 }
 $upgradeCode = $parsedGuid.ToString('D').ToUpperInvariant()
+
+$parsedLegacyGuid = [Guid]::Empty
+if (-not [Guid]::TryParse($legacyUpgradeCode, [ref]$parsedLegacyGuid)) {
+    throw "LegacyUpgradeCode must be a valid GUID."
+}
+$legacyUpgradeCode = $parsedLegacyGuid.ToString('D').ToUpperInvariant()
+
+if ($legacyUpgradeCode -eq $upgradeCode) {
+    throw "LegacyUpgradeCode must differ from UpgradeCode."
+}
 
 $settingsDir = Split-Path -Parent $SettingsPath
 if (-not [System.IO.Path]::IsPathRooted($appSourceDir)) {
@@ -216,6 +230,7 @@ $propsContent = @"
     <InstallerManufacturer>$(Escape-Xml([string]$settings.Manufacturer))</InstallerManufacturer>
     <InstallerVersion>$(Escape-Xml($version))</InstallerVersion>
     <InstallerUpgradeCode>$(Escape-Xml($upgradeCode))</InstallerUpgradeCode>
+    <InstallerLegacyUpgradeCode>$(Escape-Xml($legacyUpgradeCode))</InstallerLegacyUpgradeCode>
     <InstallerAppDirectoryName>$(Escape-Xml([string]$settings.AppDirectoryName))</InstallerAppDirectoryName>
     <InstallerCommonCompanyDirName>$(Escape-Xml([string]$settings.CommonCompanyDirName))</InstallerCommonCompanyDirName>
     <InstallerCommonAppsRootDirName>$(Escape-Xml([string]$settings.CommonAppsRootDirName))</InstallerCommonAppsRootDirName>
