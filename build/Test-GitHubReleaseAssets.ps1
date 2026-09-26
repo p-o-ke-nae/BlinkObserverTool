@@ -45,10 +45,10 @@ $expectedReleaseUrl = "https://github.com/$Repository/releases/tag/$Tag"
 if ($manifest.tag -cne $Tag -or $manifest.releaseUrl -cne $expectedReleaseUrl) {
     throw "Manifest does not identify the same GitHub Release."
 }
-if ($manifest.installerFilename -cne "BlinkObserverTool.Installer.msi") {
+if ($manifest.installer -cne "BlinkObserverTool.Installer.msi") {
     throw "Manifest installer filename is not the attached MSI."
 }
-if ($actualAssetNames -cnotcontains $manifest.installerFilename) {
+if ($actualAssetNames -cnotcontains $manifest.installer) {
     throw "Manifest installer is absent from the GitHub Release."
 }
 

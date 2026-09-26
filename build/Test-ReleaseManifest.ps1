@@ -54,7 +54,7 @@ if ($manifest.architecture -cne "x64" -or $settings.PublishRuntimeIdentifier -cn
 if ($settings.PublishSelfContained -ne $true) {
     throw "Release publish must remain self-contained."
 }
-if ($manifest.installerFilename -cne $installerFilename -or $installerFilename -cne "BlinkObserverTool.Installer.msi") {
+if ($manifest.installer -cne $installerFilename -or $installerFilename -cne "BlinkObserverTool.Installer.msi") {
     throw "Manifest installer filename does not match the release MSI."
 }
 if ($manifest.sha256 -cne $actualHash) {
@@ -78,5 +78,5 @@ if (-not [DateTimeOffset]::TryParse(
 
 Write-Output "Validated release manifest: $resolvedManifestPath"
 Write-Output "  Tag: $($manifest.tag)"
-Write-Output "  Installer: $($manifest.installerFilename)"
+Write-Output "  Installer: $($manifest.installer)"
 Write-Output "  SHA-256: $($manifest.sha256)"
