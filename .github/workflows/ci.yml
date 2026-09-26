@@ -83,6 +83,42 @@ jobs:
         shell: pwsh
         run: dotnet build .\installer\BlinkObserverTool.Installer\BlinkObserverTool.Installer.wixproj -c Debug --no-restore
 
+      - name: Validate Debug MSI and release contract
+        shell: pwsh
+        run: |
+          $msi = Resolve-Path .\installer\BlinkObserverTool.Installer\bin\Debug\BlinkObserverTool.Installer.msi
+          $settings = Get-Content .\installer\BlinkObserverTool.Installer\installer.settings.json -Raw | ConvertFrom-Json
+          .\build\Test-MsiPackage.ps1 `
+            -MsiPath $msi `
+            -ExpectedVersion 0.0.0 `
+            -ExpectedUpgradeCode $settings.UpgradeCode `
+            -MainExecutableName $settings.MainExecutableName `
+            -RequiredFileNames @("manifest.json", "profile.json", "template.png")
+
+          $checksumPath = "$msi.sha256"
+          $hash = (Get-FileHash -LiteralPath $msi -Algorithm SHA256).Hash.ToLowerInvariant()
+          [System.IO.File]::WriteAllText(
+            $checksumPath,
+            "$hash  $([System.IO.Path]::GetFileName($msi))`n",
+            [System.Text.UTF8Encoding]::new($false)
+          )
+          $manifestPath = Join-Path (Split-Path -Parent $msi) "manifest.test.json"
+          $releaseUrl = "https://github.com/p-o-ke-nae/BlinkObserverTool/releases/tag/v0.0.0"
+          .\build\New-ReleaseManifest.ps1 `
+            -MsiPath $msi `
+            -ChecksumPath $checksumPath `
+            -OutputPath $manifestPath `
+            -Version 0.0.0 `
+            -Tag v0.0.0 `
+            -ReleaseUrl $releaseUrl
+          .\build\Test-ReleaseManifest.ps1 `
+            -ManifestPath $manifestPath `
+            -SchemaPath .\build\release-manifest.schema.json `
+            -MsiPath $msi `
+            -ChecksumPath $checksumPath `
+            -ExpectedTag v0.0.0 `
+            -ExpectedReleaseUrl $releaseUrl
+
       - name: Remove package credentials
         if: always()
         shell: pwsh
