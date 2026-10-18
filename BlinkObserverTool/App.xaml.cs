@@ -17,10 +17,9 @@ public partial class App : Application
             var host = BlinkRecognitionHost.CreateDefault();
             var targetWindowFinder = new TargetWindowFinder();
             var keyboardSendService = new KeyboardSendService(targetWindowFinder);
-            var physicalKeyboardSendService = new PhysicalKeyboardSendService(targetWindowFinder);
             var configurationStore = new BlinkSendConfigurationStore(Path.Combine(workspaceDirectory, "BlinkConfigs"));
 
-            var mainWindow = new MainWindow(host, configurationStore, targetWindowFinder, keyboardSendService, physicalKeyboardSendService);
+            var mainWindow = new MainWindow(host, configurationStore, targetWindowFinder, keyboardSendService);
             MainWindow = mainWindow;
             mainWindow.Show();
         }

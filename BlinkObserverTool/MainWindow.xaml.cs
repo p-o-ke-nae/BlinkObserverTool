@@ -18,7 +18,6 @@ public partial class MainWindow : Window
     private readonly BlinkSendConfigurationStore configurationStore;
     private readonly TargetWindowFinder targetWindowFinder;
     private readonly KeyboardSendService keyboardSendService;
-    private readonly PhysicalKeyboardSendService physicalKeyboardSendService;
     private readonly RecognitionKeyForwarder recognitionKeyForwarder;
     private readonly ObservableCollection<BlinkSendConfiguration> configurations = [];
     private readonly ObservableCollection<KeyOption> availableKeys = CreateKeyOptions();
@@ -40,15 +39,13 @@ public partial class MainWindow : Window
         BlinkRecognitionHost host,
         BlinkSendConfigurationStore configurationStore,
         TargetWindowFinder targetWindowFinder,
-        KeyboardSendService keyboardSendService,
-        PhysicalKeyboardSendService physicalKeyboardSendService)
+        KeyboardSendService keyboardSendService)
     {
         InitializeComponent();
         this.host = host;
         this.configurationStore = configurationStore;
         this.targetWindowFinder = targetWindowFinder;
         this.keyboardSendService = keyboardSendService;
-        this.physicalKeyboardSendService = physicalKeyboardSendService;
         recognitionKeyForwarder = new RecognitionKeyForwarder(HandleBlinkDetected);
 
         DataContext = host.ViewModel;
@@ -67,7 +64,6 @@ public partial class MainWindow : Window
         SendModifierAsCommonKeyCheckBox.IsChecked = false;
         PreviewKeyDown += MainWindow_PreviewKeyDown;
         uiReady = true;
-        UpdateDriverStatus();
         UpdateObservationModeUi();
 
         host.ViewModel.RecognitionEventRaised += recognitionKeyForwarder.HandleRecognitionEvent;
@@ -81,8 +77,6 @@ public partial class MainWindow : Window
     protected override async void OnClosed(EventArgs e)
     {
         host.ViewModel.RecognitionEventRaised -= recognitionKeyForwarder.HandleRecognitionEvent;
-        AppendToolLog(physicalKeyboardSendService.ReleaseAllSimulatedKeys());
-        physicalKeyboardSendService.Dispose();
         if (host.ViewModel.IsRunning)
         {
             await host.ViewModel.StopAsync();
@@ -237,7 +231,6 @@ public partial class MainWindow : Window
         {
             await host.ViewModel.StopAsync();
             recognitionKeyForwarder.ResetAggregationState();
-            AppendToolLog(physicalKeyboardSendService.ReleaseAllSimulatedKeys());
             SetKeySendStatus("観測を停止しました。");
             AppendToolLog("観測を停止しました。");
         });
@@ -359,18 +352,6 @@ public partial class MainWindow : Window
         Activate();
         Focus();
         Keyboard.Focus(this);
-    }
-
-    private async void InstallPhysicalDriver_Click(object sender, RoutedEventArgs e)
-    {
-        await ExecuteToolActionAsync(() =>
-        {
-            var message = physicalKeyboardSendService.InstallDriver();
-            UpdateDriverStatus();
-            SetKeySendStatus(message);
-            AppendToolLog(message);
-            return Task.CompletedTask;
-        });
     }
 
     private void ProfileComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -721,7 +702,6 @@ public partial class MainWindow : Window
             || SendModifierAsCommonKeyCheckBox is null
             || SendModeComboBox is null
             || SendTriggerComboBox is null
-            || DriverStatusTextBlock is null
             || KeyHoldMillisecondsTextBox is null
             || RequiredBlinkCountTextBox is null
             || BlinkAggregationWindowTextBox is null
@@ -787,7 +767,6 @@ public partial class MainWindow : Window
 
     private void HandleToolException(Exception exception)
     {
-        AppendToolLog(physicalKeyboardSendService.ReleaseAllSimulatedKeys());
         Console.Error.WriteLine(exception);
         SetKeySendStatus($"本体エラー: {exception.Message}");
         AppendToolLog($"本体エラー: {exception}");
@@ -796,7 +775,6 @@ public partial class MainWindow : Window
             "Blink Observer Tool",
             MessageBoxButton.OK,
             MessageBoxImage.Error);
-        UpdateDriverStatus();
     }
 
     private void HandleBlinkDetected(DateTimeOffset timestamp)
@@ -883,23 +861,7 @@ public partial class MainWindow : Window
     private string SendConfiguredKey(BlinkSendConfiguration configuration)
     {
         var sendMode = ResolveEffectiveSendMode(configuration);
-        var target = sendMode is KeySendMode.InterceptionTap or KeySendMode.InterceptionHold
-            ? physicalKeyboardSendService.SendKey(new BlinkSendConfiguration
-            {
-                Name = configuration.Name,
-                RecognitionProfileName = configuration.RecognitionProfileName,
-                TargetProcessName = configuration.TargetProcessName,
-                TargetWindowTitleContains = configuration.TargetWindowTitleContains,
-                SendKey = configuration.SendKey,
-                SendModifierAsCommonKey = configuration.SendModifierAsCommonKey,
-                SendMode = sendMode,
-                SendTrigger = configuration.SendTrigger,
-                KeyHoldMilliseconds = configuration.KeyHoldMilliseconds,
-                RequiredBlinkCount = configuration.RequiredBlinkCount,
-                BlinkAggregationWindowMilliseconds = configuration.BlinkAggregationWindowMilliseconds,
-                BringTargetToForeground = configuration.BringTargetToForeground
-            })
-            : keyboardSendService.SendKey(new BlinkSendConfiguration
+        var target = keyboardSendService.SendKey(new BlinkSendConfiguration
             {
                 Name = configuration.Name,
                 RecognitionProfileName = configuration.RecognitionProfileName,
@@ -914,15 +876,12 @@ public partial class MainWindow : Window
                 BlinkAggregationWindowMilliseconds = configuration.BlinkAggregationWindowMilliseconds,
                 BringTargetToForeground = configuration.BringTargetToForeground
             });
-        UpdateDriverStatus();
-        var triggerLabel = sendMode == KeySendMode.InterceptionHold && configuration.SendTrigger == KeySendTrigger.Press
-            ? "押下維持+離上"
-            : configuration.SendTrigger switch
-            {
-                KeySendTrigger.KeyDownOnly => "押下のみ",
-                KeySendTrigger.KeyUpOnly => "離上のみ",
-                _ => "押下+離上"
-            };
+        var triggerLabel = configuration.SendTrigger switch
+        {
+            KeySendTrigger.KeyDownOnly => "押下のみ",
+            KeySendTrigger.KeyUpOnly => "離上のみ",
+            _ => "押下+離上"
+        };
         var modifierModeLabel = configuration.SendModifierAsCommonKey ? "修飾共通" : "修飾左右別";
         return $"{configuration.SendKey} / {sendMode} / {triggerLabel} / {modifierModeLabel} -> {target}";
     }
@@ -937,16 +896,6 @@ public partial class MainWindow : Window
         return configuration.SendKey is Key.LeftShift or Key.RightShift or Key.LeftCtrl or Key.RightCtrl or Key.LeftAlt or Key.RightAlt
             ? KeySendMode.ScanCodeTap
             : KeySendMode.VirtualKeyTap;
-    }
-
-    private void UpdateDriverStatus()
-    {
-        if (!uiReady || DriverStatusTextBlock is null)
-        {
-            return;
-        }
-
-        DriverStatusTextBlock.Text = $"ドライバ状態: {physicalKeyboardSendService.GetDriverStatus()}";
     }
 
     private static string NormalizeRequiredValue(string? value, string fieldName)
@@ -1056,9 +1005,7 @@ public partial class MainWindow : Window
             new KeySendModeOption { Mode = KeySendMode.Auto, Label = "Auto (修飾キーはスキャンコード)" },
             new KeySendModeOption { Mode = KeySendMode.VirtualKeyTap, Label = "仮想キー送信" },
             new KeySendModeOption { Mode = KeySendMode.ScanCodeTap, Label = "スキャンコード送信" },
-            new KeySendModeOption { Mode = KeySendMode.ScanCodeHold, Label = "スキャンコード長押し" },
-            new KeySendModeOption { Mode = KeySendMode.InterceptionTap, Label = "物理入力(Interception)" },
-            new KeySendModeOption { Mode = KeySendMode.InterceptionHold, Label = "物理入力(Interception長押し)" }
+            new KeySendModeOption { Mode = KeySendMode.ScanCodeHold, Label = "スキャンコード長押し" }
         ];
     }
 

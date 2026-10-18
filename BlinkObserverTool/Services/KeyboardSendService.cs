@@ -62,7 +62,6 @@ internal sealed class KeyboardSendService
             KeySendMode.VirtualKeyTap => CreateVirtualKeyInputs(virtualKey, configuration),
             KeySendMode.ScanCodeTap => CreateScanCodeInputs(virtualKey, configuration),
             KeySendMode.ScanCodeHold => CreateScanCodeHoldInputs(virtualKey, configuration),
-            KeySendMode.InterceptionTap or KeySendMode.InterceptionHold => throw new InvalidOperationException("InputInterceptor 送信は PhysicalKeyboardSendService を使用してください。"),
             _ => CreateVirtualKeyInputs(virtualKey, configuration)
         };
     }

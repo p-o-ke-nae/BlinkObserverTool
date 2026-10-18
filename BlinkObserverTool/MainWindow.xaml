@@ -161,23 +161,13 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="140" />
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <TextBlock VerticalAlignment="Center" Text="送信方式" />
                             <ComboBox x:Name="SendModeComboBox"
                                       Grid.Column="1"
                                       DisplayMemberPath="Label"
                                       SelectionChanged="ConfigurationInput_Changed" />
-                            <Button Grid.Column="2"
-                                    Margin="8,0,0,0"
-                                    Padding="8,4"
-                                    Click="InstallPhysicalDriver_Click"
-                                    Content="物理入力ドライバ導入" />
                         </Grid>
-                        <TextBlock x:Name="DriverStatusTextBlock"
-                                   Margin="0,0,0,6"
-                                   Foreground="#555555"
-                                   Text="ドライバ状態: 未確認" />
                         <Grid Margin="0,2,0,2">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="140" />

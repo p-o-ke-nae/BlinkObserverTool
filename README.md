@@ -12,7 +12,7 @@ BlinkObserverTool は、ゲーム画面の瞬きをテンプレートマッチ�
 | 認識基盤 | `GenericRecognition.Workbench.*` NuGetパッケージ |
 | 専用 GUI | 画像認識に必要な設定だけを絞った WPF 画面 |
 | 設定保存 | 送信キー・対象プロセス/ウィンドウ・認識プロファイルを保存し、プルダウン選択可能 |
-| 物理入力互換 | 7genBlinkSearch 向けに `InputInterceptor` ベースの送信方式を選択可能 |
+| 送信方式 | Windows 標準の `SendInput`（仮想キー / スキャンコード / スキャンコード長押し）。Interception ドライバは使用しない |
 | 検証モード | キー送信せず、瞬き検出ログと任意の通知音で実機との差分確認に使える |
 | 配布 | `installer\BlinkObserverTool.Installer` で MSI 化可能（[利用者向けインストーラー導入マニュアル](docs/user-installer-manual.ja.md)） |
 
@@ -72,17 +72,14 @@ Camera 3、1280x720 を使用するため、入力デバイスが異なる場合
 
 インストーラーは `installer\BlinkObserverTool.Installer` にあります。プロジェクトの1回のビルドでアプリの publish と MSI 作成を行います。Debug ビルドはローカル用 `0.0.0`、Release ビルドは HEAD の単一 Git タグ `vMAJOR.MINOR.PATCH` をアプリと MSI のバージョンに使用します。Release は Git メタデータなし、タグなし、不正または複数のタグ、MSI の数値上限を超えるタグで失敗します。配布 MSI は現在未署名です。SHA-256 は改ざん検知に利用できますが、発行元の本人性は保証しません。
 
-Visual Studio と CLI の手順は `installer\README.md` を参照してください。開発者および運用者向けの詳細な手順は [開発者・運用者向けリリース運用マニュアル](docs/developer-release-manual.ja.md) を参照してください。一般利用者向けのインストール、更新、アンインストール、プロファイル保護、物理入力ドライバ導入などの手順は [利用者向けインストーラー導入マニュアル](docs/user-installer-manual.ja.md) を参照してください。pokenae.com 掲載用の機能・配布情報は [製品紹介資料](docs/product-overview.ja.md) にまとめています。
+Visual Studio と CLI の手順は `installer\README.md` を参照してください。開発者および運用者向けの詳細な手順は [開発者・運用者向けリリース運用マニュアル](docs/developer-release-manual.ja.md) を参照してください。一般利用者向けのインストール、更新、アンインストール、プロファイル保護、旧物理入力ドライバの削除などの手順は [利用者向けインストーラー導入マニュアル](docs/user-installer-manual.ja.md) を参照してください。pokenae.com 掲載用の機能・配布情報は [製品紹介資料](docs/product-overview.ja.md) にまとめています。
 
 ## 7genBlinkSearch 向けメモ
 
 - `7genBlinkSearch` は配布物の情報から **Python + tkinter** ベースで、`pynput.keyboard` を同梱している
-- そのため、通常の `SendInput` 注入より **物理入力寄りの送信** が必要な場合がある
-- BlinkObserverTool では **送信方式** として `物理入力(Interception)` / `物理入力(Interception長押し)` を選択できる
-- これらを使う場合は、本体ウィンドウの **「物理入力ドライバ導入」** から `InputInterceptor` ドライバを導入する
-- 物理入力送信時も、設定した **対象プロセス/ウィンドウ解決** と **送信前前面化** を行ってから送信する
-- 物理入力送信は押下残留対策として、送信前に同キーの解放を試行し、観測停止/本体エラー/終了時にも修飾キーの強制解放を行う
-- さらに修飾キーを `押下のみ` で送る場合も、押下エッジ後に短時間で自動解放して OS 側の Shift 状態残留を防ぐ
-- `物理入力(Interception)` の通常送信は `SimulateKeyPress` を優先し、送信後に Interception 側でも修飾キー（Shift/Ctrl/Alt）解放を補正する
+- 7genBlinkSearch でも **仮想キー送信** と対象ウィンドウの前面化（全画面表示を含む）で入力できることを確認済み
+- `物理入力(Interception)` / `物理入力(Interception長押し)` は v0.1.6 で廃止した。Interception はキーボードを再接続するたびに内部枠を消費し、10 台分を使い切ると新しく接続したキーボードが再起動まで入力不能になるため
+- 旧版で保存した設定は読み込み時に移行する（`物理入力(Interception)` → `Auto`、`物理入力(Interception長押し)` → `スキャンコード長押し`）
+- 旧版で導入したドライバは自動では削除されない。削除手順は [利用者向けマニュアル 12 章](docs/user-installer-manual.ja.md#12-物理入力ドライバinterceptionの廃止と削除) を参照
 - 送信前前面化が有効な場合、対象が既に前面なら再アクティブ化を行わず、前面化が発生したときのみ短い待機を入れてフォーカス遷移直後の取りこぼしを抑える
 - 瞬きが短時間に複数回検出される場合は、**同一瞬きとしてまとめる回数** と **瞬き集約時間(ms)** を設定すると、1回目だけを送信して以降の重複検出を無視できる
