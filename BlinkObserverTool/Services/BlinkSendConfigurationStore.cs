@@ -27,8 +27,26 @@ internal sealed class BlinkSendConfigurationStore
         }
 
         using var stream = File.OpenRead(filePath);
-        var document = JsonSerializer.Deserialize<BlinkSendConfigurationDocument>(stream, SerializerOptions);
-        return document ?? new BlinkSendConfigurationDocument();
+        var document = JsonSerializer.Deserialize<BlinkSendConfigurationDocument>(stream, SerializerOptions)
+            ?? new BlinkSendConfigurationDocument();
+        foreach (var configuration in document.Configurations)
+        {
+            configuration.SendMode = MigrateSendMode(configuration.SendMode);
+        }
+
+        return document;
+    }
+
+    // 4/5 were the removed Interception modes; map them to the closest SendInput mode.
+    internal static KeySendMode MigrateSendMode(KeySendMode mode)
+    {
+        return (int)mode switch
+        {
+            4 => KeySendMode.Auto,
+            5 => KeySendMode.ScanCodeHold,
+            _ when Enum.IsDefined(mode) => mode,
+            _ => KeySendMode.Auto
+        };
     }
 
     public void Save(BlinkSendConfigurationDocument document)
