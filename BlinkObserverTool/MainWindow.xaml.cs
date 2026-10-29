@@ -584,6 +584,20 @@ public partial class MainWindow : Window
     private void ValidateFixedBlinkModelForObservation()
     {
         var selected = host.ViewModel.RecognitionMethod.SelectedOption;
+        if (string.Equals(selected?.Descriptor.Id, MultiExemplarBlinkRecognitionFactory.ComponentId, StringComparison.OrdinalIgnoreCase))
+        {
+            var multiParameters = GetRecognitionParameters();
+            var multiModel = MultiExemplarBlinkModel.Load(multiParameters);
+            if (multiParameters.GetRoi("Eye") != multiModel.EyeRegion)
+            {
+                throw new FixedBlinkModelException(
+                    "blink-model-roi-mismatch",
+                    "目 ROI が複数パターン学習モデルの採取時から変更されています。瞬き観測セットアップをやり直してください。");
+            }
+
+            return;
+        }
+
         if (!string.Equals(selected?.Descriptor.Id, FixedBlinkRecognitionFactory.ComponentId, StringComparison.OrdinalIgnoreCase))
         {
             return;
@@ -612,6 +626,8 @@ public partial class MainWindow : Window
         {
             FixedBlinkRecognitionFactory.ComponentId =>
                 $"モデル状態: {FixedBlinkRecognitionFactory.GetModelStatus(GetRecognitionParameters())}",
+            MultiExemplarBlinkRecognitionFactory.ComponentId =>
+                $"モデル状態: {MultiExemplarBlinkModel.GetModelStatus(GetRecognitionParameters())}",
             BlinkRecognitionFactory.ComponentId =>
                 "モデル状態: 互換の瞬き特徴認識です。固定モデルを使うには専用セットアップが必要です。",
             _ => "モデル状態: 固定瞬きモデルを使用しない認識方式です。"

@@ -39,7 +39,7 @@ internal sealed class BlinkRecognitionHost
 
         var catalog = new RecognitionPluginCatalog(
             pluginDirectory,
-            [new FixedBlinkRecognitionFactory(), new BlinkRecognitionFactory()]);
+            [new FixedBlinkRecognitionFactory(), new BlinkRecognitionFactory(), new MultiExemplarBlinkRecognitionFactory()]);
         var runner = new RecognitionRunner(catalog);
         var profileStore = new JsonRecognitionProfileStore();
         var calibrationService = new TemplateMatchingProfileCalibrationService();

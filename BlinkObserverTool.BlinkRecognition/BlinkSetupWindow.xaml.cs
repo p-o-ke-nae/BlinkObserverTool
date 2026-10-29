@@ -185,8 +185,9 @@ public partial class BlinkSetupWindow : Window
 
         selectedEyeRegion = new RoiArea(x, y, width, height);
         ResetSamples();
+        ResetMultiState();
         CaptureOpenButton.IsEnabled = true;
-        StatusText.Text = $"目領域 {width}x{height} ({x}, {y}) を選択しました。目を開けて「2. 開眼を採取」を押してください。";
+        StatusText.Text = $"目領域 {width}x{height} ({x}, {y}) を選択しました。複数パターンは「A. 履歴を取り込む」、固定テンプレートは目を開けて「2. 開眼を採取」へ進んでください。";
     }
 
     private void SetParameter(string key, object value)
