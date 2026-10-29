@@ -3,9 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="瞬き観測セットアップ"
         Width="1040"
-        Height="720"
+        Height="880"
         MinWidth="720"
-        MinHeight="520"
+        MinHeight="640"
         WindowStartupLocation="CenterOwner">
     <Grid Margin="12">
         <Grid.RowDefinitions>
@@ -14,44 +14,17 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <StackPanel>
-            <TextBlock FontSize="16" FontWeight="SemiBold" Text="固定学習モデル セットアップ" />
-            <TextBlock Margin="0,4,0,8"
-                       Foreground="#555555"
-                       Text="1. プレビュー開始・ROI指定 → 瞬き後に履歴を巻き戻す → 2. 開眼採取 → 3. 閉眼採取 → 4. 品質検証 → 5. モデル反映 の順に進めます。"
-                       TextWrapping="Wrap" />
-            <WrapPanel>
+            <TextBlock FontSize="16" FontWeight="SemiBold" Text="瞬き観測セットアップ" />
+            <WrapPanel Margin="0,6,0,0">
                 <Button Width="150"
                         Margin="0,0,8,0"
                         Padding="10,6"
                         Click="CapturePreview_Click"
                         Content="1. プレビュー開始" />
-                <Button x:Name="CaptureOpenButton"
-                        Width="130"
-                        Margin="0,0,8,0"
-                        Padding="10,6"
-                        IsEnabled="False"
-                        Click="CaptureOpen_Click"
-                        Content="2. 開眼を採取" />
-                <Button x:Name="CaptureClosedButton"
-                        Width="130"
-                        Margin="0,0,8,0"
-                        Padding="10,6"
-                        IsEnabled="False"
-                        Click="CaptureClosed_Click"
-                        Content="3. 閉眼を採取" />
-                <Button x:Name="ValidateButton"
-                        Width="130"
-                        Margin="0,0,8,0"
-                        Padding="10,6"
-                        IsEnabled="False"
-                        Click="Validate_Click"
-                        Content="4. 品質を検証" />
-                <Button x:Name="ApplyModelButton"
-                        Width="130"
-                        Padding="10,6"
-                        IsEnabled="False"
-                        Click="ApplyModel_Click"
-                        Content="5. モデルを反映" />
+                <TextBlock VerticalAlignment="Center"
+                           Foreground="#555555"
+                           Text="プレビュー上で目をドラッグして ROI を指定し、下のタブで方式を選んで進めます。"
+                           TextWrapping="Wrap" />
             </WrapPanel>
             <Grid Margin="0,8,0,0">
                 <Grid.ColumnDefinitions>
@@ -78,6 +51,122 @@
             <TextBlock Margin="0,4,0,0"
                        HorizontalAlignment="Center"
                        Text="{Binding SelectedHistoryLabel}" />
+            <TabControl x:Name="SetupModeTabs" Margin="0,8,0,0">
+                <TabItem Header="複数パターン（推奨）">
+                    <StackPanel Margin="6">
+                        <TextBlock Margin="0,0,0,6"
+                                   Foreground="#555555"
+                                   Text="揺れの数周期と瞬き（できれば姿勢の違う3回以上）を含むようにプレビューを録画 → A. 履歴を取り込む → B. 閉眼候補を検出 → 候補ごとに 閉眼/開眼/除外 を確認（必要なら履歴スライダーで選んだフレームを手動追加）→ C. 自動校正 → D. モデルを反映。"
+                                   TextWrapping="Wrap" />
+                        <WrapPanel>
+                            <Button x:Name="MultiCaptureButton"
+                                    Margin="0,0,8,4"
+                                    Padding="10,6"
+                                    IsEnabled="False"
+                                    Click="MultiCapture_Click"
+                                    Content="A. 履歴を取り込む" />
+                            <Button x:Name="MultiProposeButton"
+                                    Margin="0,0,8,4"
+                                    Padding="10,6"
+                                    IsEnabled="False"
+                                    Click="MultiPropose_Click"
+                                    Content="B. 閉眼候補を検出" />
+                            <Button x:Name="MultiAddClosedButton"
+                                    Margin="0,0,8,4"
+                                    Padding="10,6"
+                                    IsEnabled="False"
+                                    Click="MultiAddClosed_Click"
+                                    Content="選択履歴を閉眼に追加" />
+                            <Button x:Name="MultiAddExcludedButton"
+                                    Margin="0,0,8,4"
+                                    Padding="10,6"
+                                    IsEnabled="False"
+                                    Click="MultiAddExcluded_Click"
+                                    Content="選択履歴を除外" />
+                            <Button x:Name="MultiCalibrateButton"
+                                    Margin="0,0,8,4"
+                                    Padding="10,6"
+                                    IsEnabled="False"
+                                    Click="MultiCalibrate_Click"
+                                    Content="C. 自動校正・品質検証" />
+                            <Button x:Name="MultiApplyButton"
+                                    Margin="0,0,8,4"
+                                    Padding="10,6"
+                                    IsEnabled="False"
+                                    Click="MultiApply_Click"
+                                    Content="D. モデルを反映" />
+                        </WrapPanel>
+                        <ListBox x:Name="CandidateList"
+                                 Height="150"
+                                 Margin="0,4,0,0"
+                                 ItemsSource="{Binding Candidates, RelativeSource={RelativeSource AncestorType=Window}}"
+                                 SelectionChanged="CandidateList_SelectionChanged"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                 ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Width="150" Margin="2">
+                                        <TextBlock FontSize="11" Text="{Binding Title}" />
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Width="72" Height="64" Source="{Binding BeforeImage}" RenderOptions.BitmapScalingMode="NearestNeighbor" ToolTip="候補直前" />
+                                            <Image Width="72" Height="64" Margin="4,0,0,0" Source="{Binding PeakImage}" RenderOptions.BitmapScalingMode="NearestNeighbor" ToolTip="候補" />
+                                        </StackPanel>
+                                        <ComboBox Margin="0,2,0,0"
+                                                  ItemsSource="{Binding LabelOptions}"
+                                                  SelectedItem="{Binding Label, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <TextBlock x:Name="MultiSummaryText"
+                                   Margin="0,4,0,0"
+                                   Text="未取り込み"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </TabItem>
+                <TabItem Header="固定テンプレート（従来）">
+                    <StackPanel Margin="6">
+                        <TextBlock Margin="0,4,0,8"
+                                   Foreground="#555555"
+                                   Text="プレビュー開始・ROI指定 → 瞬き後に履歴を巻き戻す → 2. 開眼採取 → 3. 閉眼採取 → 4. 品質検証 → 5. モデル反映 の順に進めます。"
+                                   TextWrapping="Wrap" />
+                        <WrapPanel>
+                            <Button x:Name="CaptureOpenButton"
+                                    Width="130"
+                                    Margin="0,0,8,0"
+                                    Padding="10,6"
+                                    IsEnabled="False"
+                                    Click="CaptureOpen_Click"
+                                    Content="2. 開眼を採取" />
+                            <Button x:Name="CaptureClosedButton"
+                                    Width="130"
+                                    Margin="0,0,8,0"
+                                    Padding="10,6"
+                                    IsEnabled="False"
+                                    Click="CaptureClosed_Click"
+                                    Content="3. 閉眼を採取" />
+                            <Button x:Name="ValidateButton"
+                                    Width="130"
+                                    Margin="0,0,8,0"
+                                    Padding="10,6"
+                                    IsEnabled="False"
+                                    Click="Validate_Click"
+                                    Content="4. 品質を検証" />
+                            <Button x:Name="ApplyModelButton"
+                                    Width="130"
+                                    Padding="10,6"
+                                    IsEnabled="False"
+                                    Click="ApplyModel_Click"
+                                    Content="5. モデルを反映" />
+                        </WrapPanel>
+                    </StackPanel>
+                </TabItem>
+            </TabControl>
         </StackPanel>
         <Border Grid.Row="1" Margin="0,10" BorderBrush="#44000000" BorderThickness="1" Background="#11000000">
             <Grid x:Name="PreviewSurface"

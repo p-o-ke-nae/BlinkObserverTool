@@ -10,6 +10,7 @@ BlinkObserverTool は、Windows 上のゲーム映像から瞬きを画像認識
 
 - カメラまたは映像入力から観測範囲を指定
 - 開眼・閉眼サンプルを使った固定テンプレート認識
+- 揺れのあるキャラクター向けの複数パターン瞬き認識（閉眼候補の自動提示と閾値の自動校正）
 - 検出先プロセスと送信キーの保存
 - キー送信を行わない検証モードと検出ログ
 - 標準プロファイルの安全な追加・更新
@@ -41,4 +42,5 @@ pokenae.com の製品紹介に利用できます。検証用 reference 動画、
 
 - [利用者向けインストーラー導入マニュアル](user-installer-manual.ja.md)
 - [固定テンプレート瞬き認識チューニング指針](fixed-template-blink-tuning.ja.md)
+- [複数パターン瞬き認識](multi-exemplar-blink-setup.ja.md)
 - [GitHub Releases](https://github.com/p-o-ke-nae/BlinkObserverTool/releases)

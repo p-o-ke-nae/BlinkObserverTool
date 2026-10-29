@@ -1,0 +1,40 @@
+{
+  "source": "2026-10-04 16-49-29.mp4",
+  "decoder": "opencv CAP_MSMF",
+  "sourceSize": {
+    "width": 1920,
+    "height": 1080
+  },
+  "crop": {
+    "x": 752,
+    "y": 206,
+    "width": 64,
+    "height": 56
+  },
+  "pixelFormat": "Bgr24",
+  "stride": 192,
+  "fps": 60.0,
+  "frameCount": 1822,
+  "sha256": "d00a1a51e7eacfcf20b09d18dfede929e1339ac125f0d6d7d56bc9d37b6e58a3",
+  "frameIndexBase": 0,
+  "eyeRoi": {
+    "x": 16,
+    "y": 16,
+    "width": 26,
+    "height": 22
+  },
+  "closedFrames": [
+    [249, 250],
+    [331, 332],
+    [343, 344],
+    [985, 986],
+    [997, 998],
+    [1206, 1206],
+    [1304, 1305],
+    [1316, 1317],
+    [1414, 1415],
+    [1426, 1427]
+  ],
+  "trainFrames": [0, 479],
+  "holdoutFrames": [480, 1821]
+}
