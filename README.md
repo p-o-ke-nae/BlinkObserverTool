@@ -129,13 +129,3 @@ Camera 3、1280x720 を使用するため、入力デバイスが異なる場合
 インストーラーは `installer\BlinkObserverTool.Installer` にあります。プロジェクトの1回のビルドでアプリの publish と MSI 作成を行います。Debug ビルドはローカル用 `0.0.0`、Release ビルドは HEAD の単一 Git タグ `vMAJOR.MINOR.PATCH` をアプリと MSI のバージョンに使用します。Release は Git メタデータなし、タグなし、不正または複数のタグ、MSI の数値上限を超えるタグで失敗します。配布 MSI は現在未署名です。SHA-256 は改ざん検知に利用できますが、発行元の本人性は保証しません。
 
 Visual Studio と CLI の手順は `installer\README.md` を参照してください。開発者および運用者向けの詳細な手順は [開発者・運用者向けリリース運用マニュアル](docs/developer-release-manual.ja.md) を参照してください。一般利用者向けのインストール、更新、アンインストール、プロファイル保護、旧物理入力ドライバの削除などの手順は [利用者向けインストーラー導入マニュアル](docs/user-installer-manual.ja.md) を参照してください。pokenae.com 掲載用の機能・配布情報は [製品紹介資料](docs/product-overview.ja.md) にまとめています。
-
-## 7genBlinkSearch 向けメモ
-
-- `7genBlinkSearch` は配布物の情報から **Python + tkinter** ベースで、`pynput.keyboard` を同梱している
-- 7genBlinkSearch でも **仮想キー送信** と対象ウィンドウの前面化（全画面表示を含む）で入力できることを確認済み
-- `物理入力(Interception)` / `物理入力(Interception長押し)` は v0.1.6 で廃止した。Interception はキーボードを再接続するたびに内部枠を消費し、10 台分を使い切ると新しく接続したキーボードが再起動まで入力不能になるため
-- 旧版で保存した設定は読み込み時に移行する（`物理入力(Interception)` → `Auto`、`物理入力(Interception長押し)` → `スキャンコード長押し`）
-- 旧版で導入したドライバは自動では削除されない。削除手順は [利用者向けマニュアル 12 章](docs/user-installer-manual.ja.md#12-物理入力ドライバinterceptionの廃止と削除) を参照
-- 送信前前面化が有効な場合、対象が既に前面なら再アクティブ化を行わず、前面化が発生したときのみ短い待機を入れてフォーカス遷移直後の取りこぼしを抑える
-- 瞬きが短時間に複数回検出される場合は、**同一瞬きとしてまとめる回数** と **瞬き集約時間(ms)** を設定すると、1回目だけを送信して以降の重複検出を無視できる
